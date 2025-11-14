@@ -1,22 +1,29 @@
 # Step 1: Generate Laravel Models for CLS Management System
 # Save this as generate-models.ps1 and run from project root
 
+# Create Models directory if it doesn't exist
+if (!(Test-Path "app/Models")) {
+    New-Item -ItemType Directory -Path "app/Models" -Force
+}
+
+Write-Host "📁 Generating Laravel Models for CLS Management System..." -ForegroundColor Cyan
+
+# 1. User Model
 @'
 <?php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
         'name',
@@ -47,6 +54,19 @@ class User extends Authenticatable
         return $this->hasMany(ActivityLog::class);
     }
 }
+'@ | Out-File -FilePath "app/Models/User.php" -Encoding UTF8
+Write-Host "✅ Created User model" -ForegroundColor Green
+
+# 2. Chief Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Chief extends Model
 {
@@ -82,6 +102,19 @@ class Chief extends Model
         return $this->hasMany(Allocation::class);
     }
 }
+'@ | Out-File -FilePath "app/Models/Chief.php" -Encoding UTF8
+Write-Host "✅ Created Chief model" -ForegroundColor Green
+
+# 3. Staff Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Staff extends Model
 {
@@ -115,6 +148,18 @@ class Staff extends Model
         return $this->hasMany(ActivityLog::class);
     }
 }
+'@ | Out-File -FilePath "app/Models/Staff.php" -Encoding UTF8
+Write-Host "✅ Created Staff model" -ForegroundColor Green
+
+# 4. Client Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
@@ -147,6 +192,20 @@ class Client extends Model
         return $this->hasMany(Document::class);
     }
 }
+'@ | Out-File -FilePath "app/Models/Client.php" -Encoding UTF8
+Write-Host "✅ Created Client model" -ForegroundColor Green
+
+# 5. Land Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Land extends Model
 {
@@ -198,6 +257,19 @@ class Land extends Model
         return $this->hasMany(Document::class);
     }
 }
+'@ | Out-File -FilePath "app/Models/Land.php" -Encoding UTF8
+Write-Host "✅ Created Land model" -ForegroundColor Green
+
+# 6. Allocation Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Allocation extends Model
 {
@@ -259,6 +331,18 @@ class Allocation extends Model
         return $this->hasMany(Document::class);
     }
 }
+'@ | Out-File -FilePath "app/Models/Allocation.php" -Encoding UTF8
+Write-Host "✅ Created Allocation model" -ForegroundColor Green
+
+# 7. Document Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Document extends Model
 {
@@ -313,6 +397,19 @@ class Document extends Model
         return $this->belongsTo(User::class, 'uploaded_by');
     }
 }
+'@ | Out-File -FilePath "app/Models/Document.php" -Encoding UTF8
+Write-Host "✅ Created Document model" -ForegroundColor Green
+
+# 8. ActivityLog Model
+@'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ActivityLog extends Model
 {
@@ -346,36 +443,18 @@ class ActivityLog extends Model
         return $this->morphTo();
     }
 }
+'@ | Out-File -FilePath "app/Models/ActivityLog.php" -Encoding UTF8
+Write-Host "✅ Created ActivityLog model" -ForegroundColor Green
 
-class Notification extends Model
-{
-    use HasFactory;
+# 9. Report Model
+@'
+<?php
 
-    protected $fillable = [
-        'type',
-        'notifiable_type',
-        'notifiable_id',
-        'data',
-        'read_at',
-        'sent_via',
-        'message',
-    ];
+namespace App\Models;
 
-    protected $casts = [
-        'data' => 'array',
-        'read_at' => 'datetime',
-        'sent_at' => 'datetime',
-    ];
-
-    const VIA_EMAIL = 'email';
-    const VIA_SMS = 'sms';
-    const VIA_BOTH = 'both';
-
-    public function notifiable(): MorphTo
-    {
-        return $this->morphTo();
-    }
-}
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Report extends Model
 {
@@ -409,7 +488,22 @@ class Report extends Model
         return $this->belongsTo(User::class, 'generated_by');
     }
 }
-'@ | Out-File -FilePath "app/Models/AllModels.php" -Encoding UTF8
+'@ | Out-File -FilePath "app/Models/Report.php" -Encoding UTF8
+Write-Host "✅ Created Report model" -ForegroundColor Green
 
-Write-Host "✅ All models generated successfully in app/Models/AllModels.php" -ForegroundColor Green
-Write-Host "📁 Next step: Run migrations and create controllers" -ForegroundColor Yellow
+Write-Host "`n🎉 ALL MODELS GENERATED SUCCESSFULLY!" -ForegroundColor Green
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host "📁 Models Created:" -ForegroundColor White
+Write-Host "   - User.php" -ForegroundColor Gray
+Write-Host "   - Chief.php" -ForegroundColor Gray
+Write-Host "   - Staff.php" -ForegroundColor Gray
+Write-Host "   - Client.php" -ForegroundColor Gray
+Write-Host "   - Land.php" -ForegroundColor Gray
+Write-Host "   - Allocation.php" -ForegroundColor Gray
+Write-Host "   - Document.php" -ForegroundColor Gray
+Write-Host "   - ActivityLog.php" -ForegroundColor Gray
+Write-Host "   - Report.php" -ForegroundColor Gray
+Write-Host "`n🚀 Next Steps:" -ForegroundColor Yellow
+Write-Host "   1. Run: php artisan migrate" -ForegroundColor White
+Write-Host "   2. Create controllers and routes" -ForegroundColor White
+Write-Host "   3. Generate views" -ForegroundColor White
