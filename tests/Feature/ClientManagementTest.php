@@ -85,14 +85,15 @@ class ClientManagementTest extends TestCase
     }
 
     /** @test */
-    public function client_export_works()
+   public function test_client_export_works()
     {
-        Client::factory()->count(5)->create();
+    // Create some test clients
+    Client::factory()->count(3)->create();
 
-        $response = $this->actingAs($this->admin)
-            ->get('/clients/export');
+    $response = $this->actingAs($this->admin)
+        ->get('/clients/export');
 
-        $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $response->assertStatus(200);
+    $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
     }
 }

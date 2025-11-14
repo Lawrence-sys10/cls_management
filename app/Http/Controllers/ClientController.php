@@ -93,9 +93,22 @@ class ClientController extends Controller
     }
 
     public function export(Request $request)
-    {
-        return Excel::download(new ClientsExport($request), 'clients-' . date('Y-m-d') . '.xlsx');
+{
+    try {
+        logger()->info('Client export started', ['user_id' => auth()->id()]);
+        
+        $export = new \App\Exports\ClientsExport($request);
+        return $export->download();
+        
+    } catch (\Exception $e) {
+        logger()->error('Client export failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return redirect()->back()->with('error', 'Export failed: ' . $e->getMessage());
     }
+}
 
     public function import(Request $request): RedirectResponse
     {

@@ -2,18 +2,24 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Staff;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StaffFactory extends Factory
 {
-    public function definition(): array
-    {
-        return [
-            'user_id' => User::factory(),
-            'department' => $this->faker->word,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-    }
+    protected $model = Staff::class;
+
+    // In database/factories/StaffFactory.php
+public function definition()
+{
+    return [
+        'user_id' => \App\Models\User::factory(),
+        'employee_id' => 'EMP' . rand(10000, 99999),
+        'department' => $this->faker->word,
+        'phone' => $this->faker->phoneNumber,
+        'date_joined' => $this->faker->date(), // Add this required field
+        'assigned_area' => $this->faker->city,
+    ];
+}
 }
