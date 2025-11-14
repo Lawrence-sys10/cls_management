@@ -2,30 +2,26 @@
 
 namespace Database\Factories;
 
-use App\Models\Allocation;
-use App\Models\Land;
-use App\Models\Client;
-use App\Models\User;
-use App\Models\Chief;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AllocationFactory extends Factory
 {
-    protected $model = Allocation::class;
-
     public function definition()
     {
         return [
-            'land_id' => Land::factory(),
-            'client_id' => Client::factory(),
-            'chief_id' => Chief::factory(),
-            'processed_by' => User::factory(),
+            'land_id' => \App\Models\Land::factory(),
+            'client_id' => \App\Models\Client::factory(),
+            'chief_id' => \App\Models\Chief::factory(),
+            'processed_by' => \App\Models\User::factory(),
             'allocation_date' => $this->faker->date(),
-            'purpose' => $this->faker->sentence,
             'approval_status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
+            'chief_approval_date' => $this->faker->optional()->date(),
+            'registrar_approval_date' => $this->faker->optional()->date(),
+            'allocation_letter_path' => $this->faker->optional()->filePath(),
             'payment_status' => $this->faker->randomElement(['pending', 'paid', 'partial']),
-            'payment_amount' => $this->faker->randomFloat(2, 100, 10000),
-            'notes' => $this->faker->optional()->paragraph,
+            'payment_amount' => $this->faker->randomFloat(2, 1000, 50000),
+            'payment_date' => $this->faker->optional()->date(),
+            'notes' => $this->faker->optional()->text,
             'is_finalized' => $this->faker->boolean,
         ];
     }
