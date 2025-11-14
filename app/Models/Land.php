@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
 
 class Land extends Model
 {
@@ -57,4 +58,45 @@ class Land extends Model
     {
         return $this->hasMany(Document::class);
     }
+
+    // Add ownership status scopes
+    public function scopeVacant(Builder $query): Builder
+    {
+        return $query->where('ownership_status', 'vacant');
+    }
+
+    public function scopeAllocated(Builder $query): Builder
+    {
+        return $query->where('ownership_status', 'allocated');
+    }
+
+    public function scopeUnderDispute(Builder $query): Builder
+    {
+        return $query->where('ownership_status', 'under_dispute');
+    }
+
+    public function scopeReserved(Builder $query): Builder
+    {
+        return $query->where('ownership_status', 'reserved');
+    }
+
+    // Add status scopes (if needed for the 'status' column)
+    public function scopeAvailable(Builder $query): Builder
+    {
+        return $query->where('status', 'available');
+    }
+
+    public function scopeAllocatedStatus(Builder $query): Builder
+    {
+        return $query->where('status', 'allocated');
+    }
+
+    public function scopeReservedStatus(Builder $query): Builder
+    {
+        return $query->where('status', 'reserved');
+    }
+    public function allocations(): HasMany
+{
+    return $this->hasMany(Allocation::class);
+}
 }

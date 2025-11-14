@@ -16,10 +16,10 @@ class LandFactory extends Factory
             'status' => $this->faker->randomElement(['available', 'allocated', 'reserved']),
             'size' => $this->faker->randomFloat(2, 1, 100),
             'boundary_description' => $this->faker->text(200),
-            'latitude' => $this->faker->latitude,
-            'longitude' => $this->faker->longitude,
+            'latitude' => $this->faker->randomFloat(8, -90, 90), // Fixed: Use randomFloat with proper range
+            'longitude' => $this->faker->randomFloat(8, -99.99999999, 99.99999999), // Fixed: longitude column is decimal(10,8)
             'polygon_boundaries' => $this->faker->optional()->text,
-            'ownership_status' => $this->faker->randomElement(['vacant', 'occupied', 'disputed']),
+            'ownership_status' => 'vacant', // Fixed: Use exact ENUM value (lowercase)
             'chief_id' => \App\Models\Chief::factory(),
             'price' => $this->faker->randomFloat(2, 1000, 100000),
             'land_use' => $this->faker->randomElement(['agricultural', 'residential', 'commercial']),
@@ -30,5 +30,42 @@ class LandFactory extends Factory
             'registration_date' => $this->faker->date(),
             'is_verified' => $this->faker->boolean,
         ];
+    }
+
+    // Use the exact ENUM values that work
+    public function vacant()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'ownership_status' => 'vacant', // Fixed: lowercase
+            ];
+        });
+    }
+
+    public function allocated()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'ownership_status' => 'allocated',
+            ];
+        });
+    }
+
+    public function underDispute()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'ownership_status' => 'under_dispute', // Fixed: exact ENUM value
+            ];
+        });
+    }
+
+    public function reserved()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'ownership_status' => 'reserved', // Fixed: exact ENUM value
+            ];
+        });
     }
 }
