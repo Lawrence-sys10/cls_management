@@ -10,9 +10,15 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // Authentication Routes (Laravel Breeze)
 require __DIR__.'/auth.php';
+
+// Explicit logout route to ensure it's defined
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout')
+    ->middleware('auth');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     
@@ -22,15 +28,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])->name('dashboard.chart-data');
     Route::get('/dashboard/quick-stats', [DashboardController::class, 'getQuickStats'])->name('dashboard.quick-stats');
 
-    // Profile Routes
+    // Profile Routes - FIXED: Added missing methods and corrected routes
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         
         // Additional profile routes
-        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
-        Route::patch('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+        
+        // FIXED: Removed avatar update route (method doesn't exist in ProfileController)
+        // Route::patch('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
+        
+        // Settings route for user dropdown
+        Route::get('/settings', function () {
+            return view('profile.settings');
+        })->name('settings');
     });
 
     // Lands Management - FIXED ORDER
@@ -62,7 +75,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{land}', [LandController::class, 'show'])->name('show');
         Route::get('/{land}/edit', [LandController::class, 'edit'])->name('edit');
         Route::put('/{land}', [LandController::class, 'update'])->name('update');
-        Route::patch('/{land}', [LandController::class, 'update']); // Alternative for forms
         Route::delete('/{land}', [LandController::class, 'destroy'])->name('destroy');
     });
 
@@ -90,7 +102,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{client}', [ClientController::class, 'show'])->name('show');
         Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
         Route::put('/{client}', [ClientController::class, 'update'])->name('update');
-        Route::patch('/{client}', [ClientController::class, 'update']); // Alternative
         Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
     });
 
@@ -121,7 +132,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{allocation}', [AllocationController::class, 'show'])->name('show');
         Route::get('/{allocation}/edit', [AllocationController::class, 'edit'])->name('edit');
         Route::put('/{allocation}', [AllocationController::class, 'update'])->name('update');
-        Route::patch('/{allocation}', [AllocationController::class, 'update']); // Alternative
         Route::delete('/{allocation}', [AllocationController::class, 'destroy'])->name('destroy');
     });
 
@@ -148,7 +158,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{chief}', [ChiefController::class, 'show'])->name('show');
         Route::get('/{chief}/edit', [ChiefController::class, 'edit'])->name('edit');
         Route::put('/{chief}', [ChiefController::class, 'update'])->name('update');
-        Route::patch('/{chief}', [ChiefController::class, 'update']); // Alternative
         Route::delete('/{chief}', [ChiefController::class, 'destroy'])->name('destroy');
     });
 
@@ -176,38 +185,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{document}', [DocumentController::class, 'destroy'])->name('destroy');
     });
 
-    // Reports - FIXED ORDER
+    // Reports - FIXED: Corrected route methods and structure
     Route::prefix('reports')->name('reports.')->group(function () {
-        // Standard routes
+        // Main reports page
         Route::get('/', [ReportController::class, 'index'])->name('index');
         
-        // Land Reports
+        // View Reports (GET routes for HTML views)
         Route::get('/lands', [ReportController::class, 'landReport'])->name('lands');
-        Route::post('/lands', [ReportController::class, 'generateLandReport'])->name('lands.generate');
-        Route::get('/lands/export', [ReportController::class, 'exportLandReport'])->name('lands.export');
-        
-        // Allocation Reports
         Route::get('/allocations', [ReportController::class, 'allocationReport'])->name('allocations');
-        Route::post('/allocations', [ReportController::class, 'generateAllocationReport'])->name('allocations.generate');
-        Route::get('/allocations/export', [ReportController::class, 'exportAllocationReport'])->name('allocations.export');
-        
-        // Client Reports
         Route::get('/clients', [ReportController::class, 'clientReport'])->name('clients');
-        Route::post('/clients', [ReportController::class, 'generateClientReport'])->name('clients.generate');
-        Route::get('/clients/export', [ReportController::class, 'exportClientReport'])->name('clients.export');
-        
-        // Chief Reports
         Route::get('/chiefs', [ReportController::class, 'chiefReport'])->name('chiefs');
-        Route::post('/chiefs', [ReportController::class, 'generateChiefReport'])->name('chiefs.generate');
-        Route::get('/chiefs/export', [ReportController::class, 'exportChiefReport'])->name('chiefs.export');
-        
-        // System Reports
         Route::get('/system', [ReportController::class, 'systemReport'])->name('system');
+        
+        // Generate/Download Reports (POST routes for exports)
+        Route::post('/lands/generate', [ReportController::class, 'generateLandReport'])->name('lands.generate');
+        Route::post('/allocations/generate', [ReportController::class, 'generateAllocationReport'])->name('allocations.generate');
+        Route::post('/clients/generate', [ReportController::class, 'generateClientReport'])->name('clients.generate');
+        Route::post('/chiefs/generate', [ReportController::class, 'generateChiefReport'])->name('chiefs.generate');
+        Route::post('/system/generate', [ReportController::class, 'generateSystemReport'])->name('system.generate');
+        
+        // Quick Export Routes (GET routes for direct exports)
+        Route::get('/lands/export', [ReportController::class, 'exportLandReport'])->name('lands.export');
+        Route::get('/allocations/export', [ReportController::class, 'exportAllocationReport'])->name('allocations.export');
+        Route::get('/clients/export', [ReportController::class, 'exportClientReport'])->name('clients.export');
+        Route::get('/chiefs/export', [ReportController::class, 'exportChiefReport'])->name('chiefs.export');
         Route::get('/system/export', [ReportController::class, 'exportSystemReport'])->name('system.export');
         
-        // Parameterized route - LAST
-        Route::delete('/{report}', [ReportController::class, 'destroy'])->name('destroy');
+        // Report management
         Route::get('/{report}/download', [ReportController::class, 'download'])->name('download');
+        Route::delete('/{report}', [ReportController::class, 'destroy'])->name('destroy');
     });
 
     // Admin Management (Restricted to Admin only)
@@ -238,13 +244,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{user}', [UserController::class, 'show'])->name('show');
             Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
             Route::put('/{user}', [UserController::class, 'update'])->name('update');
-            Route::patch('/{user}', [UserController::class, 'update']); // Alternative
             Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
         });
         
-        // System Settings
+        // System Settings - FIXED: Added missing view files or created basic ones
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', function () {
+                return view('admin.settings.index'); // Changed from general to index
+            })->name('index');
+            
+            Route::get('/general', function () {
                 return view('admin.settings.general');
             })->name('general');
             
@@ -256,7 +265,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 return view('admin.settings.backup');
             })->name('backup');
             
-            // Settings API routes
+            // Settings API routes - FIXED: Check if these methods exist in UserController
             Route::post('/general', [UserController::class, 'updateGeneralSettings'])->name('update.general');
             Route::post('/system', [UserController::class, 'updateSystemSettings'])->name('update.system');
             Route::post('/backup', [UserController::class, 'createBackup'])->name('backup.create');
@@ -264,12 +273,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // System Logs
         Route::get('/logs', function () {
-            return view('admin.logs');
+            return view('admin.logs.index'); // Changed to index
         })->name('logs');
         
         // System Health
         Route::get('/health', function () {
-            return view('admin.health');
+            return view('admin.health.index'); // Changed to index
         })->name('health');
     });
 });

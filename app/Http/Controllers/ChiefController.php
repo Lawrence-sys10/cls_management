@@ -3,118 +3,121 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chief;
-use App\Models\Land;
-use App\Models\Allocation;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\StoreChiefRequest;
-use App\Http\Requests\UpdateChiefRequest;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ChiefController extends Controller
 {
-    public function index(Request $request): \Illuminate\View\View
+    public function index(Request $request): View
     {
-        $query = Chief::withCount(['lands', 'allocations']);
+        $query = Chief::query();
 
         if ($request->has('search') && $request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('jurisdiction', 'like', '%' . $request->search . '%');
+            $query->where('full_name', 'like', '%' . $request->search . '%');
         }
 
         $chiefs = $query->latest()->paginate(20);
         return view('chiefs.index', compact('chiefs'));
     }
 
-    public function create(): \Illuminate\View\View
+    public function create(): View
     {
         return view('chiefs.create');
     }
 
-    public function store(StoreChiefRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $chief = Chief::create($request->validated());
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'nullable|email',
+            'traditional_area' => 'required|string',
+            'community' => 'required|string',
+            'region' => 'required|string',
+        ]);
 
-        activity()
-            ->causedBy(auth()->user())
-            ->performedOn($chief)
-            ->log('created chief: ' . $chief->name);
+        Chief::create($validated);
 
-        return redirect()->route('chiefs.show', $chief)
-            ->with('success', 'Chief registered successfully!');
+        return redirect()->route('chiefs.index')
+            ->with('success', 'Chief created successfully!');
     }
 
-    public function show(Chief $chief): \Illuminate\View\View
+    public function show(Chief $chief): View
     {
-        $chief->load(['lands', 'allocations.client', 'user']);
-        
-        $land_stats = [
-            'total' => $chief->lands->count(),
-            'vacant' => $chief->lands->where('ownership_status', 'vacant')->count(),
-            'allocated' => $chief->lands->where('ownership_status', 'allocated')->count(),
-            'disputed' => $chief->lands->where('ownership_status', 'under_dispute')->count(),
-        ];
-
-        return view('chiefs.show', compact('chief', 'land_stats'));
+        return view('chiefs.show', compact('chief'));
     }
 
-    public function edit(Chief $chief): \Illuminate\View\View
+    public function edit(Chief $chief): View
     {
         return view('chiefs.edit', compact('chief'));
     }
 
-    public function update(UpdateChiefRequest $request, Chief $chief): RedirectResponse
+    public function update(Request $request, Chief $chief): RedirectResponse
     {
-        $chief->update($request->validated());
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'title' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'nullable|email',
+            'traditional_area' => 'required|string',
+            'community' => 'required|string',
+            'region' => 'required|string',
+        ]);
 
-        activity()
-            ->causedBy(auth()->user())
-            ->performedOn($chief)
-            ->log('updated chief: ' . $chief->name);
+        $chief->update($validated);
 
-        return redirect()->route('chiefs.show', $chief)
+        return redirect()->route('chiefs.index')
             ->with('success', 'Chief updated successfully!');
     }
 
     public function destroy(Chief $chief): RedirectResponse
     {
-        $chief_name = $chief->name;
         $chief->delete();
-
-        activity()
-            ->causedBy(auth()->user())
-            ->log('deleted chief: ' . $chief_name);
-
         return redirect()->route('chiefs.index')
             ->with('success', 'Chief deleted successfully!');
     }
 
-    public function getChiefGeoJson(Chief $chief): \Illuminate\Http\JsonResponse
+    public function export(Request $request): StreamedResponse
     {
-        $lands = $chief->lands()
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get();
+        $query = Chief::query();
 
-        $features = [];
-
-        foreach ($lands as $land) {
-            $features[] = [
-                'type' => 'Feature',
-                'geometry' => [
-                    'type' => 'Point',
-                    'coordinates' => [$land->longitude, $land->latitude]
-                ],
-                'properties' => [
-                    'plot_number' => $land->plot_number,
-                    'status' => $land->ownership_status,
-                    'area_acres' => $land->area_acres
-                ]
-            ];
+        if ($request->has('search') && $request->search) {
+            $query->where('full_name', 'like', '%' . $request->search . '%');
         }
 
-        return response()->json([
-            'type' => 'FeatureCollection',
-            'features' => $features
-        ]);
+        $chiefs = $query->get();
+
+        $fileName = 'chiefs-' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function() use ($chiefs) {
+            $file = fopen('php://output', 'w');
+            
+            // Headers
+            fputcsv($file, ['ID', 'Full Name', 'Title', 'Phone', 'Email', 'Status']);
+            
+            // Data
+            foreach ($chiefs as $chief) {
+                fputcsv($file, [
+                    $chief->id,
+                    $chief->full_name,
+                    $chief->title,
+                    $chief->phone,
+                    $chief->email,
+                    $chief->is_active ? 'Active' : 'Inactive'
+                ]);
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
