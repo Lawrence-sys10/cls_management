@@ -11,7 +11,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Remove Spatie middleware for now - we'll add it back after proper installation
+        // $middleware->alias([
+        //     'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        //     'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        //     'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+        // ]);
+
+        $middleware->web(append: [
+            // Add any additional web middleware here
+        ]);
+
+        $middleware->api(prepend: [
+            // Add any additional API middleware here
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

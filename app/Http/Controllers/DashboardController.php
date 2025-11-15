@@ -41,6 +41,76 @@ class DashboardController extends Controller
     }
 
     /**
+     * Admin dashboard
+     */
+    public function admin(): View
+    {
+        try {
+            $stats = [
+                'total_users' => User::count(),
+                'active_users' => User::where('is_active', true)->count(),
+                'inactive_users' => User::where('is_active', false)->count(),
+                'total_lands' => Land::count(),
+                'total_clients' => Client::count(),
+                'total_chiefs' => Chief::count(),
+                'total_allocations' => Allocation::count(),
+                'pending_allocations' => Allocation::where('approval_status', 'pending')->count(),
+                'approved_allocations' => Allocation::where('approval_status', 'approved')->count(),
+                'rejected_allocations' => Allocation::where('approval_status', 'rejected')->count(),
+            ];
+
+            $recentUsers = User::with('roles')->latest()->take(5)->get();
+            $systemStats = $this->getSystemStats();
+
+            return view('admin.dashboard', compact('stats', 'recentUsers', 'systemStats'));
+        } catch (\Exception $e) {
+            \Log::error('Admin dashboard error: ' . $e->getMessage());
+            
+            return view('admin.dashboard', [
+                'stats' => $this->getEmptyAdminStats(),
+                'recentUsers' => collect(),
+                'systemStats' => []
+            ]);
+        }
+    }
+
+    /**
+     * Chief dashboard
+     */
+    public function chief(): View
+    {
+        try {
+            $chiefId = auth()->id();
+            
+            $stats = [
+                'total_lands' => Land::where('chief_id', $chiefId)->count(),
+                'verified_lands' => Land::where('chief_id', $chiefId)->where('is_verified', true)->count(),
+                'total_allocations' => Allocation::where('chief_id', $chiefId)->count(),
+                'pending_allocations' => Allocation::where('chief_id', $chiefId)->where('approval_status', 'pending')->count(),
+                'approved_allocations' => Allocation::where('chief_id', $chiefId)->where('approval_status', 'approved')->count(),
+                'recent_allocations' => Allocation::where('chief_id', $chiefId)->latest()->take(5)->count(),
+            ];
+
+            $recentLands = Land::where('chief_id', $chiefId)->latest()->take(5)->get();
+            $recentAllocations = Allocation::with(['client', 'land'])
+                ->where('chief_id', $chiefId)
+                ->latest()
+                ->take(5)
+                ->get();
+
+            return view('chief.dashboard', compact('stats', 'recentLands', 'recentAllocations'));
+        } catch (\Exception $e) {
+            \Log::error('Chief dashboard error: ' . $e->getMessage());
+            
+            return view('chief.dashboard', [
+                'stats' => $this->getEmptyChiefStats(),
+                'recentLands' => collect(),
+                'recentAllocations' => collect()
+            ]);
+        }
+    }
+
+    /**
      * Get dashboard statistics
      */
     private function getDashboardStats(): array
@@ -55,6 +125,22 @@ class DashboardController extends Controller
             'total_users' => User::count(),
             'active_allocations' => Allocation::where('approval_status', 'approved')->count(),
             'rejected_allocations' => Allocation::where('approval_status', 'rejected')->count(),
+        ];
+    }
+
+    /**
+     * Get system statistics for admin dashboard
+     */
+    private function getSystemStats(): array
+    {
+        return [
+            'laravel_version' => app()->version(),
+            'php_version' => phpversion(),
+            'environment' => app()->environment(),
+            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'N/A',
+            'database_driver' => config('database.default'),
+            'timezone' => config('app.timezone'),
+            'debug_mode' => config('app.debug') ? 'Enabled' : 'Disabled',
         ];
     }
 
@@ -270,6 +356,40 @@ class DashboardController extends Controller
     }
 
     /**
+     * Get empty admin stats for error fallback
+     */
+    private function getEmptyAdminStats(): array
+    {
+        return [
+            'total_users' => 0,
+            'active_users' => 0,
+            'inactive_users' => 0,
+            'total_lands' => 0,
+            'total_clients' => 0,
+            'total_chiefs' => 0,
+            'total_allocations' => 0,
+            'pending_allocations' => 0,
+            'approved_allocations' => 0,
+            'rejected_allocations' => 0,
+        ];
+    }
+
+    /**
+     * Get empty chief stats for error fallback
+     */
+    private function getEmptyChiefStats(): array
+    {
+        return [
+            'total_lands' => 0,
+            'verified_lands' => 0,
+            'total_allocations' => 0,
+            'pending_allocations' => 0,
+            'approved_allocations' => 0,
+            'recent_allocations' => 0,
+        ];
+    }
+
+    /**
      * Get empty chart data for error fallback
      */
     private function getEmptyChartData(): array
@@ -293,5 +413,37 @@ class DashboardController extends Controller
             'success' => true,
             'stats' => $stats
         ]);
+    }
+
+    /**
+     * Get public statistics (for API)
+     */
+    public function getPublicStats(Request $request): JsonResponse
+    {
+        try {
+            $stats = [
+                'total_lands' => Land::count(),
+                'total_chiefs' => Chief::count(),
+                'total_allocations' => Allocation::where('approval_status', 'approved')->count(),
+                'total_clients' => Client::count(),
+                'system_status' => 'operational',
+                'updated_at' => now()->toISOString(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $stats,
+                'message' => 'Public statistics retrieved successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Public stats error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'data' => [],
+                'message' => 'Failed to retrieve public statistics'
+            ], 500);
+        }
     }
 }

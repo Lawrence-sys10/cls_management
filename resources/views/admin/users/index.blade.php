@@ -1,104 +1,209 @@
-@extends(''layouts.app'')
+@extends('layouts.app')
 
-@section(''title'', ''User Management'')
-@section(''header'', ''User Management'')
+@section('title', 'User Management')
 
-@section(''actions'')
-<a href="{{ route(''admin.users.create'') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-    <i class="fas fa-plus mr-2"></i>Add User
-</a>
-@endsection
-
-@section(''content'')
-<div class="bg-white shadow rounded-lg">
-    <div class="px-4 py-5 sm:p-6">
-        <!-- Users Table -->
-        <div class="overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200" id="usersTable">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($users as $user)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <span class="text-blue-600 font-medium">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $user->email }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $user->phone ?? ''N/A'' }}</div>
-                            <div class="text-sm text-gray-500">{{ $user->user_type }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($user->roles as $role)
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                    {{ $role->name }}
-                                </span>
-                                @endforeach
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->is_active ? ''bg-green-100 text-green-800'' : ''bg-red-100 text-red-800'' }}">
-                                {{ $user->is_active ? ''Active'' : ''Inactive'' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : ''Never'' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route(''admin.users.edit'', $user) }}" class="text-green-600 hover:text-green-900 mr-3">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            @if($user->id !== auth()->id())
-                            <form action="{{ route(''admin.users.destroy'', $user) }}" method="POST" class="inline">
+@section('content')
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">User Management</h4>
+                    <div class="card-tools">
+                        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add New User
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Bulk Actions -->
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <form id="bulk-action-form" action="{{ route('admin.users.bulk-actions') }}" method="POST">
                                 @csrf
-                                @method(''DELETE'')
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm(''Are you sure you want to delete this user?'')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="input-group">
+                                    <select name="action" class="form-select" required>
+                                        <option value="">Bulk Actions</option>
+                                        <option value="activate">Activate</option>
+                                        <option value="deactivate">Deactivate</option>
+                                        <option value="delete">Delete</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-outline-primary">Apply</button>
+                                </div>
                             </form>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                        <div class="col-md-4">
+                            <form action="{{ route('admin.users.index') }}" method="GET">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ request('search') }}">
+                                    <button type="submit" class="btn btn-outline-secondary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-        <!-- Pagination -->
-        <div class="mt-4">
-            {{ $users->links() }}
+                    <!-- Users Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="select-all">
+                                    </th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Roles</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($users as $user)
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="users[]" value="{{ $user->id }}" class="user-checkbox">
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-3">
+                                                    <div class="avatar-title bg-primary rounded-circle text-white">
+                                                        {{ substr($user->name, 0, 1) }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">{{ $user->name }}</h6>
+                                                    <small class="text-muted">{{ $user->user_type }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ $user->email }}</td>
+                                        <td>{{ $user->phone ?? 'N/A' }}</td>
+                                        <td>
+                                            @foreach($user->roles as $role)
+                                                <span class="badge bg-secondary me-1">{{ $role->name }}</span>
+                                            @endforeach
+                                        </td>
+                                        <td>
+                                            @if($user->is_active)
+                                                <span class="badge bg-success">Active</span>
+                                            @else
+                                                <span class="badge bg-danger">Inactive</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-info" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                @if($user->is_active)
+                                                    <form action="{{ route('admin.users.deactivate', $user) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-secondary" title="Deactivate">
+                                                            <i class="fas fa-toggle-off"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form action="{{ route('admin.users.activate', $user) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm btn-success" title="Activate">
+                                                            <i class="fas fa-toggle-on"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this user?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i class="fas fa-users fa-2x mb-3"></i>
+                                                <p>No users found</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if($users->hasPages())
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted">
+                                Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} entries
+                            </div>
+                            {{ $users->links() }}
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 </div>
 @endsection
 
-@push(''scripts'')
+@section('scripts')
 <script>
-    $(document).ready(function() {
-        $(''#usersTable'').DataTable({
-            paging: false,
-            info: false,
-            searching: false,
-            order: []
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all checkbox
+        const selectAll = document.getElementById('select-all');
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+        
+        selectAll.addEventListener('change', function() {
+            userCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Bulk action form submission
+        const bulkForm = document.getElementById('bulk-action-form');
+        bulkForm.addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one user.');
+                return false;
+            }
+            
+            const action = this.querySelector('select[name="action"]').value;
+            if (!action) {
+                e.preventDefault();
+                alert('Please select an action.');
+                return false;
+            }
+            
+            if (action === 'delete' && !confirm('Are you sure you want to delete the selected users?')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Add selected users to form
+            checkedBoxes.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'users[]';
+                input.value = checkbox.value;
+                this.appendChild(input);
+            });
         });
     });
 </script>
-@endpush
+@endsection

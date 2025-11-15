@@ -4,18 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Land;
 use App\Models\Chief;
+use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use App\Http\Requests\StoreLandRequest;
 use App\Http\Requests\UpdateLandRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LandsExport;
 use App\Imports\LandsImport;
+use Illuminate\Support\Facades\Storage;
 
 class LandController extends Controller
 {
-    public function index(Request $request): \Illuminate\View\View
+    public function index(Request $request): View
     {
         $query = Land::with(['chief', 'allocations.client']);
 
@@ -42,7 +45,7 @@ class LandController extends Controller
         return view('lands.index', compact('lands', 'chiefs'));
     }
 
-    public function create(): \Illuminate\View\View
+    public function create(): View
     {
         $chiefs = Chief::where('is_active', true)->get();
         return view('lands.create', compact('chiefs'));
@@ -69,13 +72,13 @@ class LandController extends Controller
             ->with('success', 'Land plot registered successfully!');
     }
 
-    public function show(Land $land): \Illuminate\View\View
+    public function show(Land $land): View
     {
         $land->load(['chief', 'allocations.client', 'documents']);
         return view('lands.show', compact('land'));
     }
 
-    public function edit(Land $land): \Illuminate\View\View
+    public function edit(Land $land): View
     {
         $chiefs = Chief::where('is_active', true)->get();
         return view('lands.edit', compact('land', 'chiefs'));
@@ -147,6 +150,32 @@ class LandController extends Controller
         }
     }
 
+    public function downloadImportTemplate()
+    {
+        $templatePath = storage_path('app/templates/land-import-template.xlsx');
+        
+        if (!file_exists($templatePath)) {
+            return redirect()->route('lands.index')
+                ->with('error', 'Import template not found.');
+        }
+
+        return response()->download($templatePath, 'land-import-template.xlsx');
+    }
+
+    public function map(): View
+    {
+        $lands = Land::with('chief')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->where(function ($query) {
+                $query->where('latitude', '!=', 0)
+                      ->where('longitude', '!=', 0);
+            })
+            ->get();
+
+        return view('lands.map', compact('lands'));
+    }
+
     public function getLandGeoJson(): JsonResponse
     {
         try {
@@ -200,6 +229,166 @@ class LandController extends Controller
                 'error' => 'Failed to load land data'
             ], 500);
         }
+    }
+
+    public function bulkActions(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|string|in:verify,unverify,delete',
+            'lands' => 'required|array',
+            'lands.*' => 'exists:lands,id'
+        ]);
+
+        $lands = Land::whereIn('id', $request->lands)->get();
+
+        switch ($request->action) {
+            case 'verify':
+                Land::whereIn('id', $request->lands)->update(['is_verified' => true]);
+                $message = 'Selected lands verified successfully!';
+                break;
+            
+            case 'unverify':
+                Land::whereIn('id', $request->lands)->update(['is_verified' => false]);
+                $message = 'Selected lands unverified successfully!';
+                break;
+            
+            case 'delete':
+                // Check if any land has allocations
+                $landsWithAllocations = Land::whereIn('id', $request->lands)
+                    ->whereHas('allocations')
+                    ->count();
+
+                if ($landsWithAllocations > 0) {
+                    return redirect()->route('lands.index')
+                        ->with('error', 'Cannot delete lands with existing allocations.');
+                }
+
+                Land::whereIn('id', $request->lands)->delete();
+                $message = 'Selected lands deleted successfully!';
+                break;
+        }
+
+        // Log activity
+        if (function_exists('activity')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->log('performed bulk action: ' . $request->action . ' on ' . count($request->lands) . ' lands');
+        }
+
+        return redirect()->route('lands.index')->with('success', $message);
+    }
+
+    public function bulkDelete(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'lands' => 'required|array',
+            'lands.*' => 'exists:lands,id'
+        ]);
+
+        // Check if any land has allocations
+        $landsWithAllocations = Land::whereIn('id', $request->lands)
+            ->whereHas('allocations')
+            ->count();
+
+        if ($landsWithAllocations > 0) {
+            return redirect()->route('lands.index')
+                ->with('error', 'Cannot delete lands with existing allocations.');
+        }
+
+        $count = Land::whereIn('id', $request->lands)->delete();
+
+        // Log activity
+        if (function_exists('activity')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->log('bulk deleted ' . $count . ' lands');
+        }
+
+        return redirect()->route('lands.index')
+            ->with('success', $count . ' lands deleted successfully!');
+    }
+
+    public function documents(Land $land): View
+    {
+        $land->load('documents');
+        return view('lands.documents', compact('land'));
+    }
+
+    public function storeDocument(Request $request, Land $land): RedirectResponse
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'document_type' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $file = $request->file('document');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('land_documents', $fileName, 'public');
+
+            $document = Document::create([
+                'land_id' => $land->id,
+                'document_type' => $request->document_type,
+                'file_path' => $filePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'description' => $request->description,
+                'uploaded_by' => auth()->id(),
+            ]);
+
+            // Log activity
+            if (function_exists('activity')) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->performedOn($land)
+                    ->log('uploaded document for land: ' . $land->plot_number);
+            }
+
+            return redirect()->route('lands.documents', $land)
+                ->with('success', 'Document uploaded successfully!');
+
+        } catch (\Exception $e) {
+            return redirect()->route('lands.documents', $land)
+                ->with('error', 'Error uploading document: ' . $e->getMessage());
+        }
+    }
+
+    public function verify(Request $request, Land $land): RedirectResponse
+    {
+        $land->update(['is_verified' => true]);
+
+        // Log activity
+        if (function_exists('activity')) {
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($land)
+                ->log('verified land: ' . $land->plot_number);
+        }
+
+        return redirect()->route('lands.show', $land)
+            ->with('success', 'Land verified successfully!');
+    }
+
+    /**
+     * Chief's lands view
+     */
+    public function chiefLands(): View
+    {
+        $chiefId = auth()->id();
+        $lands = Land::with(['allocations.client'])
+            ->where('chief_id', $chiefId)
+            ->latest()
+            ->paginate(15);
+
+        $stats = [
+            'total_lands' => Land::where('chief_id', $chiefId)->count(),
+            'verified_lands' => Land::where('chief_id', $chiefId)->where('is_verified', true)->count(),
+            'lands_with_allocations' => Land::where('chief_id', $chiefId)->whereHas('allocations')->count(),
+        ];
+
+        return view('chief.lands', compact('lands', 'stats'));
     }
 
     /**
