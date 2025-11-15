@@ -1,108 +1,324 @@
-
-
 <?php $__env->startSection('title', 'Client Management'); ?>
-<?php $__env->startSection('header', 'Client Management'); ?>
+<?php $__env->startSection('subtitle', 'Manage client records and information'); ?>
 
 <?php $__env->startSection('actions'); ?>
-<div class="flex space-x-2">
-    <a href="<?php echo e(route('clients.export')); ?>" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-        <i class="fas fa-file-export mr-2"></i>Export
+    <a href="<?php echo e(route('clients.export')); ?>" class="btn btn-success">
+        <i class="fas fa-file-export me-2"></i>Export
     </a>
-    <a href="<?php echo e(route('clients.create')); ?>" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-        <i class="fas fa-plus mr-2"></i>Add Client
+    <a href="<?php echo e(route('clients.create')); ?>" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Client
     </a>
-</div>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="bg-white shadow rounded-lg">
-    <div class="px-4 py-5 sm:p-6">
-        <!-- Search -->
-        <form method="GET" class="mb-6">
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
-                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                           placeholder="Search by name, phone, or ID number...">
+<div class="container-fluid">
+    <!-- Stats Grid -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-info">
+                    <h3>Total Clients</h3>
+                    <div class="stat-value"><?php echo e($clients->total()); ?></div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-users"></i>
+                        <span>Registered clients</span>
+                    </div>
                 </div>
-                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <i class="fas fa-search mr-2"></i>Search
-                </button>
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
             </div>
-        </form>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-info">
+                    <h3>Active Allocations</h3>
+                    <div class="stat-value"><?php echo e($totalAllocations ?? 0); ?></div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-handshake"></i>
+                        <span>Current allocations</span>
+                    </div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-info">
+                    <h3>New This Month</h3>
+                    <div class="stat-value"><?php echo e($newThisMonth ?? 0); ?></div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Recent registrations</span>
+                    </div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Clients Table -->
-        <div class="overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200" id="clientsTable">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Information</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocations</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <?php $__currentLoopData = $clients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $client): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <i class="fas fa-user text-blue-600"></i>
+    <!-- Clients Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Client Records</h5>
+            <div class="header-actions">
+                <a href="<?php echo e(route('clients.export')); ?>" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-export me-1"></i>Export
+                </a>
+                <a href="<?php echo e(route('clients.create')); ?>" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>Add Client
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Search -->
+            <form method="GET" class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="search" class="form-label">Search Clients</label>
+                        <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
+                               class="form-control"
+                               placeholder="Search by name, phone, email, or ID number...">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <?php if($clients->count() > 0): ?>
+            <div class="table-responsive">
+                <table class="table table-hover" id="clientsTable">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Contact</th>
+                            <th>ID Information</th>
+                            <th>Allocations</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $__currentLoopData = $clients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $client): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-user text-primary fs-6"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0 text-dark"><?php echo e($client->full_name); ?></h6>
+                                        <small class="text-muted"><?php echo e($client->occupation ?? 'Not specified'); ?></small>
                                     </div>
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900"><?php echo e($client->full_name); ?></div>
-                                    <div class="text-sm text-gray-500"><?php echo e($client->occupation); ?></div>
+                            </td>
+                            <td>
+                                <div class="text-dark">
+                                    <div><i class="fas fa-phone text-muted me-2"></i><?php echo e($client->phone); ?></div>
+                                    <?php if($client->email): ?>
+                                    <div class="mt-1"><i class="fas fa-envelope text-muted me-2"></i><?php echo e($client->email); ?></div>
+                                    <?php endif; ?>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900"><?php echo e($client->phone); ?></div>
-                            <?php if($client->email): ?>
-                            <div class="text-sm text-gray-500"><?php echo e($client->email); ?></div>
-                            <?php endif; ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900 capitalize"><?php echo e(str_replace('_', ' ', $client->id_type)); ?></div>
-                            <div class="text-sm text-gray-500"><?php echo e($client->id_number); ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                <?php echo e($client->allocations_count); ?> allocation(s)
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="<?php echo e(route('clients.show', $client)); ?>" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="<?php echo e(route('clients.edit', $client)); ?>" class="text-green-600 hover:text-green-900 mr-3">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="<?php echo e(route('clients.destroy', $client)); ?>" method="POST" class="inline">
-                                <?php echo csrf_field(); ?>
-                                <?php echo method_field('DELETE'); ?>
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </tbody>
-            </table>
-        </div>
+                            </td>
+                            <td>
+                                <div class="text-dark">
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary text-capitalize">
+                                        <?php echo e(str_replace('_', ' ', $client->id_type)); ?>
 
-        <!-- Pagination -->
-        <div class="mt-4">
-            <?php echo e($clients->links()); ?>
+                                    </span>
+                                    <div class="mt-1 small text-muted"><?php echo e($client->id_number); ?></div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-handshake me-1"></i>
+                                    <?php echo e($client->allocations_count); ?> allocation(s)
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="<?php echo e(route('clients.show', $client)); ?>" class="btn btn-sm btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="<?php echo e(route('clients.edit', $client)); ?>" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="<?php echo e(route('clients.destroy', $client)); ?>" method="POST" class="d-inline">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this client?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                    Showing <?php echo e($clients->firstItem()); ?> to <?php echo e($clients->lastItem()); ?> of <?php echo e($clients->total()); ?> entries
+                </div>
+                <?php echo e($clients->links()); ?>
 
+            </div>
+            <?php else: ?>
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No clients found</h5>
+                <p class="text-muted">Get started by adding your first client.</p>
+                <a href="<?php echo e(route('clients.create')); ?>" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Client
+                </a>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 <?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('styles'); ?>
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-left: 4px solid var(--primary);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-info h3 {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-card:nth-child(1) .stat-icon {
+        background: rgba(67, 97, 238, 0.1);
+        color: var(--primary);
+    }
+    
+    .stat-card:nth-child(2) .stat-icon {
+        background: rgba(76, 201, 240, 0.1);
+        color: var(--success);
+    }
+    
+    .stat-card:nth-child(3) .stat-icon {
+        background: rgba(247, 37, 133, 0.1);
+        color: var(--warning);
+    }
+    
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        color: var(--gray-600);
+    }
+    
+    .trend-up {
+        color: #10b981;
+    }
+    
+    .trend-down {
+        color: var(--danger);
+    }
+    
+    .avatar-sm {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+</style>
+<?php $__env->stopPush(); ?>
 
 <?php $__env->startPush('scripts'); ?>
 <script>
@@ -111,7 +327,13 @@
             paging: false,
             info: false,
             searching: false,
-            order: []
+            order: [],
+            language: {
+                emptyTable: "No clients found"
+            },
+            columnDefs: [
+                { orderable: false, targets: [4] } // Disable sorting for actions column
+            ]
         });
     });
 </script>

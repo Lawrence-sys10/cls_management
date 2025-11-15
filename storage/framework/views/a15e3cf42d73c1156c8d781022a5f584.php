@@ -1,13 +1,15 @@
-<?php $__env->startSection('title', 'Land Management'); ?>
-<?php $__env->startSection('subtitle', 'Manage land records and allocations'); ?>
+<?php $__env->startSection('title', 'Chief Management'); ?>
+<?php $__env->startSection('subtitle', 'Manage traditional chiefs and authorities'); ?>
 
 <?php $__env->startSection('actions'); ?>
-    <a href="<?php echo e(route('lands.export')); ?>" class="btn btn-success">
+    <a href="<?php echo e(route('chiefs.export')); ?>" class="btn btn-success">
         <i class="fas fa-file-export me-2"></i>Export
     </a>
-    <a href="<?php echo e(route('lands.create')); ?>" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Add Land
+    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
+    <a href="<?php echo e(route('chiefs.create')); ?>" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Chief
     </a>
+    <?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -17,11 +19,43 @@
         <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-info">
+                    <h3>Total Chiefs</h3>
+                    <div class="stat-value"><?php echo e($chiefs->total()); ?></div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-crown"></i>
+                        <span>Registered chiefs</span>
+                    </div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-info">
+                    <h3>Active Chiefs</h3>
+                    <div class="stat-value"><?php echo e($chiefs->where('is_active', true)->count()); ?></div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Currently active</span>
+                    </div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-info">
                     <h3>Total Lands</h3>
-                    <div class="stat-value"><?php echo e($lands->total()); ?></div>
+                    <div class="stat-value"><?php echo e($totalLands ?? 0); ?></div>
                     <div class="stat-trend trend-up">
                         <i class="fas fa-map-marked-alt"></i>
-                        <span>Registered lands</span>
+                        <span>Under management</span>
                     </div>
                 </div>
                 <div class="stat-icon">
@@ -29,82 +63,39 @@
                 </div>
             </div>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-header">
-                <div class="stat-info">
-                    <h3>Vacant Lands</h3>
-                    <div class="stat-value"><?php echo e($lands->where('ownership_status', 'vacant')->count()); ?></div>
-                    <div class="stat-trend trend-up">
-                        <i class="fas fa-landmark"></i>
-                        <span>Available for allocation</span>
-                    </div>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-landmark"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-header">
-                <div class="stat-info">
-                    <h3>Allocated</h3>
-                    <div class="stat-value"><?php echo e($lands->where('ownership_status', 'allocated')->count()); ?></div>
-                    <div class="stat-trend trend-up">
-                        <i class="fas fa-handshake"></i>
-                        <span>Currently allocated</span>
-                    </div>
-                </div>
-                <div class="stat-icon">
-                    <i class="fas fa-handshake"></i>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Lands Table -->
+    <!-- Chiefs Table -->
     <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Land Records</h5>
+            <h5 class="mb-0">Chief Records</h5>
             <div class="header-actions">
-                <a href="<?php echo e(route('lands.export')); ?>" class="btn btn-success btn-sm">
+                <a href="<?php echo e(route('chiefs.export')); ?>" class="btn btn-success btn-sm">
                     <i class="fas fa-file-export me-1"></i>Export
                 </a>
-                <a href="<?php echo e(route('lands.create')); ?>" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus me-1"></i>Add Land
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
+                <a href="<?php echo e(route('chiefs.create')); ?>" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>Add Chief
                 </a>
+                <?php endif; ?>
             </div>
         </div>
         <div class="card-body">
             <!-- Search and Filters -->
             <form method="GET" class="mb-4">
                 <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="search" class="form-label">Search</label>
+                    <div class="col-md-6">
+                        <label for="search" class="form-label">Search Chiefs</label>
                         <input type="text" name="search" id="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control"
-                               placeholder="Plot number or location...">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="chief_id" class="form-label">Chief</label>
-                        <select name="chief_id" id="chief_id" class="form-control">
-                            <option value="">All Chiefs</option>
-                            <?php $__currentLoopData = $chiefs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chief): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($chief->id); ?>" <?php echo e(request('chief_id') == $chief->id ? 'selected' : ''); ?>>
-                                <?php echo e($chief->name); ?>
-
-                            </option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </select>
+                               placeholder="Search by name, title, or region...">
                     </div>
                     <div class="col-md-3">
                         <label for="status" class="form-label">Status</label>
                         <select name="status" id="status" class="form-control">
                             <option value="">All Status</option>
-                            <option value="vacant" <?php echo e(request('status') == 'vacant' ? 'selected' : ''); ?>>Vacant</option>
-                            <option value="allocated" <?php echo e(request('status') == 'allocated' ? 'selected' : ''); ?>>Allocated</option>
-                            <option value="under_dispute" <?php echo e(request('status') == 'under_dispute' ? 'selected' : ''); ?>>Under Dispute</option>
+                            <option value="active" <?php echo e(request('status') == 'active' ? 'selected' : ''); ?>>Active</option>
+                            <option value="inactive" <?php echo e(request('status') == 'inactive' ? 'selected' : ''); ?>>Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
@@ -115,63 +106,78 @@
                 </div>
             </form>
 
-            <?php if($lands->count() > 0): ?>
+            <?php if($chiefs->count() > 0): ?>
             <div class="table-responsive">
-                <table class="table table-hover" id="landsTable">
+                <table class="table table-hover" id="chiefsTable">
                     <thead>
                         <tr>
-                            <th>Plot Number</th>
-                            <th>Location</th>
-                            <th>Area (Acres)</th>
                             <th>Chief</th>
+                            <th>Title & Region</th>
+                            <th>Contact</th>
                             <th>Status</th>
+                            <th>Lands Managed</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $__currentLoopData = $lands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $land): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php $__currentLoopData = $chiefs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chief): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td>
-                                <div class="fw-semibold text-dark"><?php echo e($land->plot_number); ?></div>
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-crown text-warning fs-6"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0 text-dark"><?php echo e($chief->name); ?></h6>
+                                        <small class="text-muted">Since <?php echo e($chief->created_at->format('M Y')); ?></small>
+                                    </div>
+                                </div>
                             </td>
                             <td>
-                                <div class="text-dark"><?php echo e($land->location); ?></div>
+                                <div class="text-dark">
+                                    <div class="fw-semibold"><?php echo e($chief->title ?? 'Traditional Leader'); ?></div>
+                                    <small class="text-muted"><?php echo e($chief->jurisdiction ?? $chief->region ?? 'Not specified'); ?></small>
+                                </div>
                             </td>
                             <td>
-                                <div class="text-dark"><?php echo e(number_format($land->area_acres, 2)); ?></div>
+                                <div class="text-dark">
+                                    <?php if($chief->phone): ?>
+                                    <div><i class="fas fa-phone text-muted me-2"></i><?php echo e($chief->phone); ?></div>
+                                    <?php endif; ?>
+                                    <?php if($chief->email): ?>
+                                    <div class="mt-1"><i class="fas fa-envelope text-muted me-2"></i><?php echo e($chief->email); ?></div>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td>
-                                <div class="text-dark"><?php echo e($land->chief->name); ?></div>
+                                <?php if($chief->is_active): ?>
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Active
+                                </span>
+                                <?php else: ?>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                                    <i class="fas fa-times-circle me-1"></i>Inactive
+                                </span>
+                                <?php endif; ?>
                             </td>
                             <td>
-                                <?php
-                                    $statusClass = match($land->ownership_status) {
-                                        'vacant' => 'badge-success',
-                                        'allocated' => 'badge-primary',
-                                        'under_dispute' => 'badge-warning',
-                                        default => 'badge-secondary'
-                                    };
-                                ?>
-                                <span class="badge <?php echo e($statusClass); ?>">
-                                    <?php echo e(ucfirst(str_replace('_', ' ', $land->ownership_status))); ?>
-
+                                <span class="badge bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-map-marked-alt me-1"></i>
+                                    <?php echo e($chief->lands_count ?? 0); ?> land(s)
                                 </span>
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="<?php echo e(route('lands.show', $land)); ?>" class="btn btn-sm btn-outline-primary">
+                                    <a href="<?php echo e(route('chiefs.show', $chief)); ?>" class="btn btn-sm btn-outline-primary" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="<?php echo e(route('lands.edit', $land)); ?>" class="btn btn-sm btn-outline-secondary">
+                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
+                                    <a href="<?php echo e(route('chiefs.edit', $chief)); ?>" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="<?php echo e(route('lands.destroy', $land)); ?>" method="POST" class="d-inline">
-                                        <?php echo csrf_field(); ?>
-                                        <?php echo method_field('DELETE'); ?>
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this land?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -183,19 +189,21 @@
             <!-- Pagination -->
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <div class="text-muted">
-                    Showing <?php echo e($lands->firstItem()); ?> to <?php echo e($lands->lastItem()); ?> of <?php echo e($lands->total()); ?> entries
+                    Showing <?php echo e($chiefs->firstItem()); ?> to <?php echo e($chiefs->lastItem()); ?> of <?php echo e($chiefs->total()); ?> entries
                 </div>
-                <?php echo e($lands->links()); ?>
+                <?php echo e($chiefs->links()); ?>
 
             </div>
             <?php else: ?>
             <div class="text-center py-5">
-                <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No land records found</h5>
-                <p class="text-muted">Get started by adding your first land record.</p>
-                <a href="<?php echo e(route('lands.create')); ?>" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Add Land
+                <i class="fas fa-crown fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No chiefs found</h5>
+                <p class="text-muted">Get started by adding your first chief.</p>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
+                <a href="<?php echo e(route('chiefs.create')); ?>" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Chief
                 </a>
+                <?php endif; ?>
             </div>
             <?php endif; ?>
         </div>
@@ -308,28 +316,16 @@
         color: var(--danger);
     }
     
-    .badge-success {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.2);
+    .avatar-sm {
+        width: 40px;
+        height: 40px;
     }
     
-    .badge-primary {
-        background: rgba(67, 97, 238, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(67, 97, 238, 0.2);
-    }
-    
-    .badge-warning {
-        background: rgba(247, 37, 133, 0.1);
-        color: var(--warning);
-        border: 1px solid rgba(247, 37, 133, 0.2);
-    }
-    
-    .badge-secondary {
-        background: rgba(108, 117, 125, 0.1);
-        color: var(--gray-600);
-        border: 1px solid rgba(108, 117, 125, 0.2);
+    .badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 600;
+        border-radius: 6px;
     }
     
     .btn-group {
@@ -347,13 +343,13 @@
 <?php $__env->startPush('scripts'); ?>
 <script>
     $(document).ready(function() {
-        $('#landsTable').DataTable({
+        $('#chiefsTable').DataTable({
             paging: false,
             info: false,
             searching: false,
             order: [],
             language: {
-                emptyTable: "No land records found"
+                emptyTable: "No chiefs found"
             },
             columnDefs: [
                 { orderable: false, targets: [5] } // Disable sorting for actions column
@@ -362,4 +358,4 @@
     });
 </script>
 <?php $__env->stopPush(); ?>
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\pprhl\cls_management\resources\views/lands/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\pprhl\cls_management\resources\views/chiefs/index.blade.php ENDPATH**/ ?>

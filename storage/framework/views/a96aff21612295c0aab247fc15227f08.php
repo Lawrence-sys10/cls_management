@@ -1,15 +1,13 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Reports'); ?>
+<?php $__env->startSection('subtitle', 'Generate and view system reports'); ?>
 
-@section('title', 'Reports')
-@section('subtitle', 'Generate and view system reports')
-
-@section('actions')
+<?php $__env->startSection('actions'); ?>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateReportModal">
         <i class="fas fa-plus me-2"></i>Generate Report
     </button>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <!-- Stats Grid -->
     <div class="stats-grid mb-4">
@@ -17,7 +15,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <h3>Total Reports</h3>
-                    <div class="stat-value">{{ $reports->total() ?? 0 }}</div>
+                    <div class="stat-value"><?php echo e($reports->total() ?? 0); ?></div>
                     <div class="stat-trend">
                         <i class="fas fa-file-alt me-1"></i>
                         <span>Generated reports</span>
@@ -33,7 +31,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <h3>This Month</h3>
-                    <div class="stat-value">{{ $reportsThisMonth ?? 0 }}</div>
+                    <div class="stat-value"><?php echo e($reportsThisMonth ?? 0); ?></div>
                     <div class="stat-trend">
                         <i class="fas fa-chart-line me-1"></i>
                         <span>Monthly reports</span>
@@ -49,7 +47,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <h3>Ready to Export</h3>
-                    <div class="stat-value">{{ $readyForExport ?? 0 }}</div>
+                    <div class="stat-value"><?php echo e($readyForExport ?? 0); ?></div>
                     <div class="stat-trend">
                         <i class="fas fa-download me-1"></i>
                         <span>Available for download</span>
@@ -72,27 +70,27 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-2 col-sm-4">
-                            <a href="{{ route('reports.lands') }}" class="btn btn-outline-primary w-100">
+                            <a href="<?php echo e(route('reports.lands')); ?>" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-landmark me-2"></i>Lands
                             </a>
                         </div>
                         <div class="col-md-2 col-sm-4">
-                            <a href="{{ route('reports.allocations') }}" class="btn btn-outline-success w-100">
+                            <a href="<?php echo e(route('reports.allocations')); ?>" class="btn btn-outline-success w-100">
                                 <i class="fas fa-handshake me-2"></i>Allocations
                             </a>
                         </div>
                         <div class="col-md-2 col-sm-4">
-                            <a href="{{ route('reports.clients') }}" class="btn btn-outline-info w-100">
+                            <a href="<?php echo e(route('reports.clients')); ?>" class="btn btn-outline-info w-100">
                                 <i class="fas fa-users me-2"></i>Clients
                             </a>
                         </div>
                         <div class="col-md-2 col-sm-4">
-                            <a href="{{ route('reports.chiefs') }}" class="btn btn-outline-warning w-100">
+                            <a href="<?php echo e(route('reports.chiefs')); ?>" class="btn btn-outline-warning w-100">
                                 <i class="fas fa-crown me-2"></i>Chiefs
                             </a>
                         </div>
                         <div class="col-md-2 col-sm-4">
-                            <a href="{{ route('reports.system') }}" class="btn btn-outline-secondary w-100">
+                            <a href="<?php echo e(route('reports.system')); ?>" class="btn btn-outline-secondary w-100">
                                 <i class="fas fa-cog me-2"></i>System
                             </a>
                         </div>
@@ -123,7 +121,7 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="search" class="form-label">Search Reports</label>
-                        <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                        <input type="text" name="search" id="search" value="<?php echo e(request('search')); ?>" 
                                class="form-control"
                                placeholder="Search by report name or type...">
                     </div>
@@ -131,20 +129,20 @@
                         <label for="type" class="form-label">Report Type</label>
                         <select name="type" id="type" class="form-control">
                             <option value="">All Types</option>
-                            <option value="lands" {{ request('type') == 'lands' ? 'selected' : '' }}>Lands Report</option>
-                            <option value="allocations" {{ request('type') == 'allocations' ? 'selected' : '' }}>Allocations Report</option>
-                            <option value="clients" {{ request('type') == 'clients' ? 'selected' : '' }}>Clients Report</option>
-                            <option value="chiefs" {{ request('type') == 'chiefs' ? 'selected' : '' }}>Chiefs Report</option>
-                            <option value="financial" {{ request('type') == 'financial' ? 'selected' : '' }}>Financial Report</option>
+                            <option value="lands" <?php echo e(request('type') == 'lands' ? 'selected' : ''); ?>>Lands Report</option>
+                            <option value="allocations" <?php echo e(request('type') == 'allocations' ? 'selected' : ''); ?>>Allocations Report</option>
+                            <option value="clients" <?php echo e(request('type') == 'clients' ? 'selected' : ''); ?>>Clients Report</option>
+                            <option value="chiefs" <?php echo e(request('type') == 'chiefs' ? 'selected' : ''); ?>>Chiefs Report</option>
+                            <option value="financial" <?php echo e(request('type') == 'financial' ? 'selected' : ''); ?>>Financial Report</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label for="status" class="form-label">Status</label>
                         <select name="status" id="status" class="form-control">
                             <option value="">All Status</option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                            <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
-                            <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                            <option value="completed" <?php echo e(request('status') == 'completed' ? 'selected' : ''); ?>>Completed</option>
+                            <option value="processing" <?php echo e(request('status') == 'processing' ? 'selected' : ''); ?>>Processing</option>
+                            <option value="failed" <?php echo e(request('status') == 'failed' ? 'selected' : ''); ?>>Failed</option>
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
@@ -155,7 +153,7 @@
                 </div>
             </form>
 
-            @if($reports->count() > 0)
+            <?php if($reports->count() > 0): ?>
             <div class="table-responsive">
                 <table class="table table-hover" id="reportsTable">
                     <thead>
@@ -170,7 +168,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($reports as $report)
+                        <?php $__currentLoopData = $reports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $report): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
@@ -180,71 +178,73 @@
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-0 text-dark">{{ $report->name ?? 'Unnamed Report' }}</h6>
-                                        <small class="text-muted">ID: {{ $report->id }}</small>
+                                        <h6 class="mb-0 text-dark"><?php echo e($report->name ?? 'Unnamed Report'); ?></h6>
+                                        <small class="text-muted">ID: <?php echo e($report->id); ?></small>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <span class="badge 
-                                    @if($report->type == 'lands') bg-success
-                                    @elseif($report->type == 'allocations') bg-primary
-                                    @elseif($report->type == 'clients') bg-info
-                                    @elseif($report->type == 'chiefs') bg-warning
-                                    @else bg-secondary
-                                    @endif bg-opacity-10 text-capitalize">
-                                    {{ $report->type ?? 'general' }}
+                                    <?php if($report->type == 'lands'): ?> bg-success
+                                    <?php elseif($report->type == 'allocations'): ?> bg-primary
+                                    <?php elseif($report->type == 'clients'): ?> bg-info
+                                    <?php elseif($report->type == 'chiefs'): ?> bg-warning
+                                    <?php else: ?> bg-secondary
+                                    <?php endif; ?> bg-opacity-10 text-capitalize">
+                                    <?php echo e($report->type ?? 'general'); ?>
+
                                 </span>
                             </td>
                             <td>
-                                <div class="text-dark">{{ $report->generated_by ?? 'System' }}</div>
+                                <div class="text-dark"><?php echo e($report->generated_by ?? 'System'); ?></div>
                             </td>
                             <td>
                                 <div class="text-dark">
-                                    <div>{{ $report->created_at->format('M d, Y') }}</div>
-                                    <small class="text-muted">{{ $report->created_at->format('h:i A') }}</small>
+                                    <div><?php echo e($report->created_at->format('M d, Y')); ?></div>
+                                    <small class="text-muted"><?php echo e($report->created_at->format('h:i A')); ?></small>
                                 </div>
                             </td>
                             <td>
                                 <span class="badge 
-                                    @if($report->status == 'completed') bg-success
-                                    @elseif($report->status == 'processing') bg-warning
-                                    @else bg-danger
-                                    @endif">
+                                    <?php if($report->status == 'completed'): ?> bg-success
+                                    <?php elseif($report->status == 'processing'): ?> bg-warning
+                                    <?php else: ?> bg-danger
+                                    <?php endif; ?>">
                                     <i class="fas 
-                                        @if($report->status == 'completed') fa-check-circle
-                                        @elseif($report->status == 'processing') fa-spinner fa-spin
-                                        @else fa-times-circle
-                                        @endif me-1"></i>
-                                    {{ ucfirst($report->status ?? 'unknown') }}
+                                        <?php if($report->status == 'completed'): ?> fa-check-circle
+                                        <?php elseif($report->status == 'processing'): ?> fa-spinner fa-spin
+                                        <?php else: ?> fa-times-circle
+                                        <?php endif; ?> me-1"></i>
+                                    <?php echo e(ucfirst($report->status ?? 'unknown')); ?>
+
                                 </span>
                             </td>
                             <td>
-                                <div class="text-dark">{{ $report->file_size ?? 'N/A' }}</div>
+                                <div class="text-dark"><?php echo e($report->file_size ?? 'N/A'); ?></div>
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    @if(($report->status == 'completed') && ($report->file_path ?? false))
-                                    <a href="{{ route('reports.download', $report) }}" class="btn btn-sm btn-outline-success" title="Download">
+                                    <?php if(($report->status == 'completed') && ($report->file_path ?? false)): ?>
+                                    <a href="<?php echo e(route('reports.download', $report)); ?>" class="btn btn-sm btn-outline-success" title="Download">
                                         <i class="fas fa-download"></i>
                                     </a>
-                                    @endif
-                                    <a href="#" class="btn btn-sm btn-outline-primary" title="View Details" onclick="showReportDetails({{ $report->id }})">
+                                    <?php endif; ?>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" title="View Details" onclick="showReportDetails(<?php echo e($report->id); ?>)">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if(($report->status != 'processing') && ($report->deleted_at === null))
-                                    <form action="{{ route('reports.destroy', $report) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
+                                    <?php if(($report->status != 'processing') && ($report->deleted_at === null)): ?>
+                                    <form action="<?php echo e(route('reports.destroy', $report)); ?>" method="POST" class="d-inline">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this report?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
@@ -252,25 +252,26 @@
             <!-- Pagination -->
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <div class="text-muted">
-                    Showing {{ $reports->firstItem() }} to {{ $reports->lastItem() }} of {{ $reports->total() }} entries
+                    Showing <?php echo e($reports->firstItem()); ?> to <?php echo e($reports->lastItem()); ?> of <?php echo e($reports->total()); ?> entries
                 </div>
-                {{ $reports->links() }}
+                <?php echo e($reports->links()); ?>
+
             </div>
-            @else
+            <?php else: ?>
             <div class="text-center py-5">
                 <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">No reports generated yet</h5>
                 <p class="text-muted">Get started by generating your first report using the quick links above.</p>
                 <div class="mt-3">
-                    <a href="{{ route('reports.lands') }}" class="btn btn-primary me-2">
+                    <a href="<?php echo e(route('reports.lands')); ?>" class="btn btn-primary me-2">
                         <i class="fas fa-landmark me-1"></i>Lands Report
                     </a>
-                    <a href="{{ route('reports.allocations') }}" class="btn btn-success">
+                    <a href="<?php echo e(route('reports.allocations')); ?>" class="btn btn-success">
                         <i class="fas fa-handshake me-1"></i>Allocations Report
                     </a>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -284,7 +285,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="customReportForm">
-                @csrf
+                <?php echo csrf_field(); ?>
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -357,9 +358,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .stats-grid {
         display: grid;
@@ -478,9 +479,9 @@
         border-radius: 6px;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     $(document).ready(function() {
         $('#reportsTable').DataTable({
@@ -518,19 +519,19 @@
             // Redirect to the appropriate report generation page
             switch(reportType) {
                 case 'lands':
-                    window.location.href = "{{ route('reports.lands') }}";
+                    window.location.href = "<?php echo e(route('reports.lands')); ?>";
                     break;
                 case 'allocations':
-                    window.location.href = "{{ route('reports.allocations') }}";
+                    window.location.href = "<?php echo e(route('reports.allocations')); ?>";
                     break;
                 case 'clients':
-                    window.location.href = "{{ route('reports.clients') }}";
+                    window.location.href = "<?php echo e(route('reports.clients')); ?>";
                     break;
                 case 'chiefs':
-                    window.location.href = "{{ route('reports.chiefs') }}";
+                    window.location.href = "<?php echo e(route('reports.chiefs')); ?>";
                     break;
                 case 'comprehensive':
-                    window.location.href = "{{ route('reports.system') }}";
+                    window.location.href = "<?php echo e(route('reports.system')); ?>";
                     break;
                 default:
                     alert('Please select a valid report type.');
@@ -579,4 +580,5 @@
         $('#reportDetailsModal').modal('show');
     }
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\pprhl\cls_management\resources\views/reports/index.blade.php ENDPATH**/ ?>

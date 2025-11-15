@@ -1,9 +1,7 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Land Allocations'); ?>
+<?php $__env->startSection('subtitle', 'Manage land allocation records'); ?>
 
-@section('title', 'Land Allocations')
-@section('subtitle', 'Manage land allocation records')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <!-- Stats Grid -->
     <div class="stats-grid mb-4">
@@ -11,7 +9,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <h3>Total Allocations</h3>
-                    <div class="stat-value">{{ $allocations->total() }}</div>
+                    <div class="stat-value"><?php echo e($allocations->total()); ?></div>
                     <div class="stat-trend trend-up">
                         <i class="fas fa-arrow-up"></i>
                         <span>Active allocations</span>
@@ -27,7 +25,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <h3>Pending Approvals</h3>
-                    <div class="stat-value">{{ $allocations->where('approval_status', 'pending')->count() }}</div>
+                    <div class="stat-value"><?php echo e($allocations->where('approval_status', 'pending')->count()); ?></div>
                     <div class="stat-trend trend-down">
                         <i class="fas fa-exclamation-circle"></i>
                         <span>Needs attention</span>
@@ -43,7 +41,7 @@
             <div class="stat-header">
                 <div class="stat-info">
                     <h3>Approved</h3>
-                    <div class="stat-value">{{ $allocations->where('approval_status', 'approved')->count() }}</div>
+                    <div class="stat-value"><?php echo e($allocations->where('approval_status', 'approved')->count()); ?></div>
                     <div class="stat-trend trend-up">
                         <i class="fas fa-check-circle"></i>
                         <span>Completed allocations</span>
@@ -60,12 +58,12 @@
     <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Land Allocations</h5>
-            <a href="{{ route('allocations.create') }}" class="btn btn-primary">
+            <a href="<?php echo e(route('allocations.create')); ?>" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>New Allocation
             </a>
         </div>
         <div class="card-body">
-            @if($allocations->count() > 0)
+            <?php if($allocations->count() > 0): ?>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -79,32 +77,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($allocations as $allocation)
+                        <?php $__currentLoopData = $allocations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $allocation): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $allocation->land->plot_number ?? 'N/A' }}</td>
-                            <td>{{ $allocation->client->full_name ?? 'N/A' }}</td>
-                            <td>{{ $allocation->chief->name ?? 'N/A' }}</td>
+                            <td><?php echo e($allocation->land->plot_number ?? 'N/A'); ?></td>
+                            <td><?php echo e($allocation->client->full_name ?? 'N/A'); ?></td>
+                            <td><?php echo e($allocation->chief->name ?? 'N/A'); ?></td>
                             <td>
                                 <span class="badge 
-                                    @if($allocation->approval_status == 'approved') bg-success
-                                    @elseif($allocation->approval_status == 'pending') bg-warning
-                                    @else bg-danger
-                                    @endif">
-                                    {{ ucfirst($allocation->approval_status) }}
+                                    <?php if($allocation->approval_status == 'approved'): ?> bg-success
+                                    <?php elseif($allocation->approval_status == 'pending'): ?> bg-warning
+                                    <?php else: ?> bg-danger
+                                    <?php endif; ?>">
+                                    <?php echo e(ucfirst($allocation->approval_status)); ?>
+
                                 </span>
                             </td>
-                            <td>{{ $allocation->created_at->format('M d, Y') }}</td>
+                            <td><?php echo e($allocation->created_at->format('M d, Y')); ?></td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="{{ route('allocations.show', $allocation) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="<?php echo e(route('allocations.show', $allocation)); ?>" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('allocations.edit', $allocation) }}" class="btn btn-sm btn-outline-secondary">
+                                    <a href="<?php echo e(route('allocations.edit', $allocation)); ?>" class="btn btn-sm btn-outline-secondary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('allocations.destroy', $allocation) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
+                                    <form action="<?php echo e(route('allocations.destroy', $allocation)); ?>" method="POST" class="d-inline">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -112,7 +111,7 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
@@ -120,26 +119,27 @@
             <!-- Pagination -->
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <div class="text-muted">
-                    Showing {{ $allocations->firstItem() }} to {{ $allocations->lastItem() }} of {{ $allocations->total() }} entries
+                    Showing <?php echo e($allocations->firstItem()); ?> to <?php echo e($allocations->lastItem()); ?> of <?php echo e($allocations->total()); ?> entries
                 </div>
-                {{ $allocations->links() }}
+                <?php echo e($allocations->links()); ?>
+
             </div>
-            @else
+            <?php else: ?>
             <div class="text-center py-5">
                 <i class="fas fa-handshake fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">No allocations found</h5>
                 <p class="text-muted">Get started by creating your first land allocation.</p>
-                <a href="{{ route('allocations.create') }}" class="btn btn-primary">
+                <a href="<?php echo e(route('allocations.create')); ?>" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Create Allocation
                 </a>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     .stats-grid {
         display: grid;
@@ -219,4 +219,5 @@
         margin-top: 2rem;
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\pprhl\cls_management\resources\views/allocations/index.blade.php ENDPATH**/ ?>
