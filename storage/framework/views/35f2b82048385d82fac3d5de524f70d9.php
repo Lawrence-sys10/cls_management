@@ -1,7 +1,7 @@
 
 
 <?php $__env->startSection('title', 'Add New Chief'); ?>
-<?php $__env->startSection('subtitle', 'Add New Chief'); ?>
+<?php $__env->startSection('subtitle', 'Register a new traditional chief'); ?>
 
 <?php $__env->startSection('content'); ?>
 <div class="container-fluid">
@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">
-                        Add New Chief
+                        <i class="fas fa-crown me-2"></i>Add New Chief
                     </h4>
                 </div>
                 <div class="card-body">
@@ -20,13 +20,15 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
-                                    <h5 class="text-primary mb-3">Personal Information</h5>
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-user me-2"></i>Personal Information
+                                    </h5>
                                     
                                     <div class="mb-3">
-                                        <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="full_name" id="full_name" 
-                                               value="<?php echo e(old('full_name')); ?>" 
-                                               class="form-control <?php $__errorArgs = ['full_name'];
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" id="name" 
+                                               value="<?php echo e(old('name')); ?>" 
+                                               class="form-control <?php $__errorArgs = ['name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -35,32 +37,7 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
                                                placeholder="Enter chief's full name" required>
-                                        <?php $__errorArgs = ['full_name'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="title" class="form-label">Title/Rank <span class="text-danger">*</span></label>
-                                        <input type="text" name="title" id="title" 
-                                               value="<?php echo e(old('title')); ?>" 
-                                               class="form-control <?php $__errorArgs = ['title'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="e.g., Nana, Oba, Togbe, Chief" required>
-                                        <?php $__errorArgs = ['title'];
+                                        <?php $__errorArgs = ['name'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -84,7 +61,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="Enter phone number" required>
+                                               placeholder="e.g., 0201234567" required>
                                         <?php $__errorArgs = ['phone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -126,13 +103,15 @@ unset($__errorArgs, $__bag); ?>
 
                             <div class="col-md-6">
                                 <div class="mb-4">
-                                    <h5 class="text-primary mb-3">Chief Details</h5>
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-map-marked-alt me-2"></i>Jurisdiction Details
+                                    </h5>
                                     
                                     <div class="mb-3">
-                                        <label for="traditional_area" class="form-label">Traditional Area <span class="text-danger">*</span></label>
-                                        <input type="text" name="traditional_area" id="traditional_area" 
-                                               value="<?php echo e(old('traditional_area')); ?>" 
-                                               class="form-control <?php $__errorArgs = ['traditional_area'];
+                                        <label for="jurisdiction" class="form-label">Jurisdiction <span class="text-danger">*</span></label>
+                                        <input type="text" name="jurisdiction" id="jurisdiction" 
+                                               value="<?php echo e(old('jurisdiction')); ?>" 
+                                               class="form-control <?php $__errorArgs = ['jurisdiction'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -140,8 +119,8 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="e.g., Ashanti, Ga, Dagbon, Ewe" required>
-                                        <?php $__errorArgs = ['traditional_area'];
+                                               placeholder="e.g., Techiman Central, Kumasi Metro" required>
+                                        <?php $__errorArgs = ['jurisdiction'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -154,10 +133,9 @@ unset($__errorArgs, $__bag); ?>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="community" class="form-label">Community/Town <span class="text-danger">*</span></label>
-                                        <input type="text" name="community" id="community" 
-                                               value="<?php echo e(old('community')); ?>" 
-                                               class="form-control <?php $__errorArgs = ['community'];
+                                        <label for="area_boundaries" class="form-label">Area Boundaries</label>
+                                        <textarea name="area_boundaries" id="area_boundaries" rows="3" 
+                                                  class="form-control <?php $__errorArgs = ['area_boundaries'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -165,8 +143,8 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="Enter community or town name" required>
-                                        <?php $__errorArgs = ['community'];
+                                                  placeholder="Describe the geographical boundaries of the chief's jurisdiction..."><?php echo e(old('area_boundaries')); ?></textarea>
+                                        <?php $__errorArgs = ['area_boundaries'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -179,193 +157,27 @@ unset($__errorArgs, $__bag); ?>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="region" class="form-label">Region <span class="text-danger">*</span></label>
-                                        <select name="region" id="region" class="form-select <?php $__errorArgs = ['region'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" required>
-                                            <option value="">Select Region</option>
-                                            <option value="Greater Accra" <?php echo e(old('region') == 'Greater Accra' ? 'selected' : ''); ?>>Greater Accra</option>
-                                            <option value="Ashanti" <?php echo e(old('region') == 'Ashanti' ? 'selected' : ''); ?>>Ashanti</option>
-                                            <option value="Western" <?php echo e(old('region') == 'Western' ? 'selected' : ''); ?>>Western</option>
-                                            <option value="Western North" <?php echo e(old('region') == 'Western North' ? 'selected' : ''); ?>>Western North</option>
-                                            <option value="Eastern" <?php echo e(old('region') == 'Eastern' ? 'selected' : ''); ?>>Eastern</option>
-                                            <option value="Central" <?php echo e(old('region') == 'Central' ? 'selected' : ''); ?>>Central</option>
-                                            <option value="Volta" <?php echo e(old('region') == 'Volta' ? 'selected' : ''); ?>>Volta</option>
-                                            <option value="Oti" <?php echo e(old('region') == 'Oti' ? 'selected' : ''); ?>>Oti</option>
-                                            <option value="Bono" <?php echo e(old('region') == 'Bono' ? 'selected' : ''); ?>>Bono</option>
-                                            <option value="Bono East" <?php echo e(old('region') == 'Bono East' ? 'selected' : ''); ?>>Bono East</option>
-                                            <option value="Ahafo" <?php echo e(old('region') == 'Ahafo' ? 'selected' : ''); ?>>Ahafo</option>
-                                            <option value="Northern" <?php echo e(old('region') == 'Northern' ? 'selected' : ''); ?>>Northern</option>
-                                            <option value="North East" <?php echo e(old('region') == 'North East' ? 'selected' : ''); ?>>North East</option>
-                                            <option value="Savannah" <?php echo e(old('region') == 'Savannah' ? 'selected' : ''); ?>>Savannah</option>
-                                            <option value="Upper East" <?php echo e(old('region') == 'Upper East' ? 'selected' : ''); ?>>Upper East</option>
-                                            <option value="Upper West" <?php echo e(old('region') == 'Upper West' ? 'selected' : ''); ?>>Upper West</option>
-                                        </select>
-                                        <?php $__errorArgs = ['region'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="rank_level" class="form-label">Rank Level</label>
-                                        <select name="rank_level" id="rank_level" class="form-select <?php $__errorArgs = ['rank_level'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>">
-                                            <option value="">Select Rank Level</option>
-                                            <option value="paramount" <?php echo e(old('rank_level') == 'paramount' ? 'selected' : ''); ?>>Paramount Chief</option>
-                                            <option value="divisional" <?php echo e(old('rank_level') == 'divisional' ? 'selected' : ''); ?>>Divisional Chief</option>
-                                            <option value="sub-chief" <?php echo e(old('rank_level') == 'sub-chief' ? 'selected' : ''); ?>>Sub-Chief</option>
-                                            <option value="queen_mother" <?php echo e(old('rank_level') == 'queen_mother' ? 'selected' : ''); ?>>Queen Mother</option>
-                                            <option value="elder" <?php echo e(old('rank_level') == 'elder' ? 'selected' : ''); ?>>Elder</option>
-                                            <option value="other" <?php echo e(old('rank_level') == 'other' ? 'selected' : ''); ?>>Other</option>
-                                        </select>
-                                        <?php $__errorArgs = ['rank_level'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+                                        <label class="form-label">Chief Status</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" <?php echo e(old('is_active', true) ? 'checked' : ''); ?>>
+                                            <label class="form-check-label" for="is_active">
+                                                Active Chief
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Chief will be able to approve allocations when active</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
-
+                        <!-- Additional Information Section -->
                         <div class="mb-4">
-                            <h5 class="text-primary mb-3">Address Information</h5>
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Additional Information
+                            </h5>
                             
                             <div class="mb-3">
-                                <label for="address" class="form-label">Full Address <span class="text-danger">*</span></label>
-                                <textarea name="address" id="address" rows="3" 
-                                          class="form-control <?php $__errorArgs = ['address'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                          placeholder="Enter chief's palace address or residence..." required><?php echo e(old('address')); ?></textarea>
-                                <?php $__errorArgs = ['address'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="city" class="form-label">City/Town</label>
-                                        <input type="text" name="city" id="city" 
-                                               value="<?php echo e(old('city')); ?>" 
-                                               class="form-control <?php $__errorArgs = ['city'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="Enter city or town">
-                                        <?php $__errorArgs = ['city'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="landmarks" class="form-label">Landmarks</label>
-                                        <input type="text" name="landmarks" id="landmarks" 
-                                               value="<?php echo e(old('landmarks')); ?>" 
-                                               class="form-control <?php $__errorArgs = ['landmarks'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                               placeholder="Enter nearby landmarks">
-                                        <?php $__errorArgs = ['landmarks'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">Additional Information</h5>
-                            
-                            <div class="mb-3">
-                                <label for="years_of_service" class="form-label">Years of Service</label>
-                                <input type="number" name="years_of_service" id="years_of_service" 
-                                       value="<?php echo e(old('years_of_service')); ?>" 
-                                       class="form-control <?php $__errorArgs = ['years_of_service'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" 
-                                       placeholder="Enter number of years as chief" min="0" max="100">
-                                <?php $__errorArgs = ['years_of_service'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="notes" class="form-label">Additional Notes</label>
+                                <label for="notes" class="form-label">Notes & Comments</label>
                                 <textarea name="notes" id="notes" rows="3" 
                                           class="form-control <?php $__errorArgs = ['notes'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -389,25 +201,21 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" <?php echo e(old('is_active', true) ? 'checked' : ''); ?>>
-                                <label class="form-check-label" for="is_active">
-                                    Active Chief
-                                </label>
-                            </div>
-                            <small class="text-muted">Uncheck to mark chief as inactive</small>
-                        </div>
-
+                        <!-- Form Actions -->
                         <div class="d-flex justify-content-between align-items-center border-top pt-4">
                             <a href="<?php echo e(route('chiefs.index')); ?>" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Chiefs
                             </a>
                             
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>
-                                Create Chief
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="reset" class="btn btn-outline-secondary">
+                                    <i class="fas fa-redo me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    Create Chief
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -417,61 +225,228 @@ unset($__errorArgs, $__bag); ?>
 </div>
 <?php $__env->stopSection(); ?>
 
+<?php $__env->startPush('styles'); ?>
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 0.5rem;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.375rem;
+        border: 1px solid #d1d5db;
+        padding: 0.75rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .text-primary {
+        color: #3b82f6 !important;
+    }
+    
+    .btn {
+        border-radius: 0.375rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    
+    .form-check-input:checked {
+        background-color: #10b981;
+        border-color: #10b981;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+    }
+    
+    h5 {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+        font-weight: 600;
+    }
+</style>
+<?php $__env->stopPush(); ?>
+
 <?php $__env->startPush('scripts'); ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Phone number formatting (similar to your client form)
+        // Phone number formatting
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
             phoneInput.addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
-                if (value.startsWith('0')) {
-                    value = '+233' + value.substring(1);
+                
+                // Format as Ghanaian phone number (0201234567)
+                if (value.length <= 10) {
+                    e.target.value = value;
+                } else {
+                    e.target.value = value.substring(0, 10);
                 }
-                if (value.startsWith('233')) {
-                    value = '+' + value;
+            });
+            
+            // Add placeholder text dynamically
+            phoneInput.addEventListener('focus', function() {
+                if (!this.value) {
+                    this.placeholder = 'e.g., 0201234567 or 0241234567';
                 }
-                e.target.value = value;
+            });
+            
+            phoneInput.addEventListener('blur', function() {
+                this.placeholder = 'e.g., 0201234567';
+            });
+        }
+        
+        // Auto-suggest jurisdiction based on name
+        const nameInput = document.getElementById('name');
+        const jurisdictionInput = document.getElementById('jurisdiction');
+        
+        if (nameInput && jurisdictionInput) {
+            nameInput.addEventListener('blur', function() {
+                if (nameInput.value && !jurisdictionInput.value) {
+                    // Extract potential jurisdiction from name
+                    const name = nameInput.value.trim();
+                    const words = name.split(' ');
+                    if (words.length > 1) {
+                        // Use the last word as potential area name
+                        const area = words[words.length - 1];
+                        jurisdictionInput.value = area + ' Traditional Area';
+                    }
+                }
             });
         }
         
         // Form validation
         const form = document.querySelector('form');
         form.addEventListener('submit', function(e) {
-            const fullName = document.getElementById('full_name').value;
-            const title = document.getElementById('title').value;
+            const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
-            const traditionalArea = document.getElementById('traditional_area').value;
-            const community = document.getElementById('community').value;
-            const region = document.getElementById('region').value;
-            const address = document.getElementById('address').value;
+            const jurisdiction = document.getElementById('jurisdiction').value;
             
-            if (!fullName || !title || !phone || !traditionalArea || !community || !region || !address) {
+            // Basic required field validation
+            if (!name || !phone || !jurisdiction) {
                 e.preventDefault();
-                alert('Please fill in all required fields marked with *.');
+                showAlert('Please fill in all required fields marked with *.', 'error');
                 return false;
             }
             
-            // Validate phone number format
-            const phoneRegex = /^\+233[0-9]{9}$/;
-            if (phone && !phoneRegex.test(phone)) {
+            // Validate phone number format (Ghanaian numbers)
+            const phoneRegex = /^(020|024|054|055|059|026|027|028|050|057)[0-9]{7}$/;
+            if (phone && !phoneRegex.test(phone.replace(/\D/g, ''))) {
                 e.preventDefault();
-                alert('Please enter a valid Ghanaian phone number (e.g., +233XXXXXXXXX)');
+                showAlert('Please enter a valid Ghanaian phone number (e.g., 0201234567)', 'error');
                 return false;
             }
+            
+            // Validate email if provided
+            const email = document.getElementById('email').value;
+            if (email && !isValidEmail(email)) {
+                e.preventDefault();
+                showAlert('Please enter a valid email address.', 'error');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+            submitBtn.disabled = true;
         });
-
-        // Auto-fill city based on community
-        const communityInput = document.getElementById('community');
-        const cityInput = document.getElementById('city');
         
-        if (communityInput && cityInput) {
-            communityInput.addEventListener('blur', function() {
-                if (communityInput.value && !cityInput.value) {
-                    cityInput.value = communityInput.value;
+        // Reset form button
+        const resetBtn = form.querySelector('button[type="reset"]');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+                    form.reset();
+                    // Reset the switch to checked
+                    document.getElementById('is_active').checked = true;
                 }
             });
         }
+        
+        // Helper functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function showAlert(message, type = 'info') {
+            // Remove existing alerts
+            const existingAlert = document.querySelector('.custom-alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = `custom-alert alert alert-${type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert at the top of the form
+            form.insertBefore(alert, form.firstChild);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        // Character counter for textareas
+        const textareas = form.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            const counter = document.createElement('div');
+            counter.className = 'form-text text-end character-counter';
+            counter.textContent = `0 characters`;
+            textarea.parentNode.appendChild(counter);
+            
+            textarea.addEventListener('input', function() {
+                const count = this.value.length;
+                counter.textContent = `${count} characters`;
+                counter.className = `form-text text-end character-counter ${count > 500 ? 'text-warning' : 'text-muted'}`;
+            });
+            
+            // Trigger initial count
+            textarea.dispatchEvent(new Event('input'));
+        });
     });
 </script>
 <?php $__env->stopPush(); ?>

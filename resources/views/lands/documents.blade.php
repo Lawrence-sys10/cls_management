@@ -1,129 +1,168 @@
 @extends('layouts.app')
 
-@section('title', 'Land Documents - ' . $land->plot_number)
-
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>Documents for {{ $land->plot_number }}</h1>
+            <p class="text-muted">{{ $land->location }} • {{ $land->chief->name }}</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+                <i class="fas fa-upload"></i> Upload Document
+            </button>
+            <a href="{{ route('lands.show', $land) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Land Details
+            </a>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="card-title">Documents for {{ $land->plot_number }}</h4>
-                        <p class="card-subtitle">{{ $land->location }}</p>
+        <div class="col-md-12">
+            @if($land->documents->count() > 0)
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Documents ({{ $land->documents->count() }})</h5>
                     </div>
-                    <div class="card-tools">
-                        <a href="{{ route('lands.show', $land) }}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Land
-                        </a>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Document Type</th>
+                                        <th>File Name</th>
+                                        <th>File Size</th>
+                                        <th>Description</th>
+                                        <th>Uploaded By</th>
+                                        <th>Upload Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($land->documents as $document)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $document->document_type }}</strong>
+                                            </td>
+                                            <td>{{ $document->file_name }}</td>
+                                            <td>{{ number_format($document->file_size / 1024, 2) }} KB</td>
+                                            <td>{{ $document->description ?? 'N/A' }}</td>
+                                            <td>{{ $document->uploader->name ?? 'Unknown' }}</td>
+                                            <td>{{ $document->created_at->format('M d, Y H:i') }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ Storage::url($document->file_path) }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       title="Download">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
+                                                    <a href="{{ Storage::url($document->file_path) }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-sm btn-outline-info"
+                                                       title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <form action="{{ route('documents.destroy', $document) }}" 
+                                                          method="POST" 
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('Are you sure you want to delete this document?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <!-- Upload Document Form -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title">Upload New Document</h5>
-                        </div>
-                        <div class="card-body">
-                            <form action="{{ route('lands.store-document', $land) }}" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="document_type" class="form-label">Document Type</label>
-                                            <select class="form-control" id="document_type" name="document_type" required>
-                                                <option value="">Select Document Type</option>
-                                                <option value="title_deed">Title Deed</option>
-                                                <option value="survey_map">Survey Map</option>
-                                                <option value="ownership_certificate">Ownership Certificate</option>
-                                                <option value="approval_letter">Approval Letter</option>
-                                                <option value="other">Other</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="document" class="form-label">Document File</label>
-                                            <input type="file" class="form-control" id="document" name="document" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
-                                            <small class="form-text text-muted">Max file size: 10MB. Allowed types: PDF, DOC, DOCX, JPG, JPEG, PNG</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="description" class="form-label">Description</label>
-                                            <textarea class="form-control" id="description" name="description" rows="1" placeholder="Optional description"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-upload me-2"></i>Upload Document
-                                </button>
-                            </form>
+            @else
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+                        <h4>No Documents Uploaded</h4>
+                        <p class="text-muted mb-4">Get started by uploading your first document for this land plot.</p>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+                            <i class="fas fa-upload"></i> Upload First Document
+                        </button>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Upload Document Modal -->
+<div class="modal fade" id="uploadDocumentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('lands.store-document', $land) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="document_type" class="form-label">Document Type *</label>
+                        <select class="form-control" id="document_type" name="document_type" required>
+                            <option value="">Select Document Type</option>
+                            <option value="Title Deed">Title Deed</option>
+                            <option value="Survey Map">Survey Map</option>
+                            <option value="Ownership Certificate">Ownership Certificate</option>
+                            <option value="Lease Agreement">Lease Agreement</option>
+                            <option value="Allocation Letter">Allocation Letter</option>
+                            <option value="Boundary Agreement">Boundary Agreement</option>
+                            <option value="Photograph">Photograph</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="document" class="form-label">Document File *</label>
+                        <input type="file" class="form-control" id="document" name="document" 
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                        <div class="form-text">
+                            Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG (Max: 10MB)
                         </div>
                     </div>
 
-                    <!-- Documents List -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Uploaded Documents</h5>
-                        </div>
-                        <div class="card-body">
-                            @if($land->documents->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Document Type</th>
-                                                <th>File Name</th>
-                                                <th>File Size</th>
-                                                <th>Uploaded By</th>
-                                                <th>Upload Date</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($land->documents as $document)
-                                                <tr>
-                                                    <td>
-                                                        <span class="badge bg-primary">{{ ucfirst(str_replace('_', ' ', $document->document_type)) }}</span>
-                                                    </td>
-                                                    <td>{{ $document->file_name }}</td>
-                                                    <td>{{ number_format($document->file_size / 1024, 2) }} KB</td>
-                                                    <td>{{ $document->uploader->name ?? 'N/A' }}</td>
-                                                    <td>{{ $document->created_at->format('M j, Y g:i A') }}</td>
-                                                    <td>
-                                                        <div class="btn-group">
-                                                            <a href="{{ route('documents.download', $document) }}" class="btn btn-sm btn-info" title="Download">
-                                                                <i class="fas fa-download"></i>
-                                                            </a>
-                                                            <a href="{{ route('documents.preview', $document) }}" class="btn btn-sm btn-secondary" title="Preview">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                            <form action="{{ route('documents.destroy', $document) }}" method="POST" class="d-inline">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this document?')">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">No documents uploaded yet.</p>
-                                </div>
-                            @endif
-                        </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="3" placeholder="Optional description of the document"></textarea>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload Document</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // File size validation
+    const fileInput = document.getElementById('document');
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+        
+        if (file && file.size > maxSize) {
+            alert('File size must be less than 10MB');
+            this.value = '';
+        }
+    });
+});
+</script>
+@endpush

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Add New Chief')
-@section('subtitle', 'Add New Chief')
+@section('subtitle', 'Register a new traditional chief')
 
 @section('content')
 <div class="container-fluid">
@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">
-                        Add New Chief
+                        <i class="fas fa-crown me-2"></i>Add New Chief
                     </h4>
                 </div>
                 <div class="card-body">
@@ -20,26 +20,17 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-4">
-                                    <h5 class="text-primary mb-3">Personal Information</h5>
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-user me-2"></i>Personal Information
+                                    </h5>
                                     
                                     <div class="mb-3">
-                                        <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="full_name" id="full_name" 
-                                               value="{{ old('full_name') }}" 
-                                               class="form-control @error('full_name') is-invalid @enderror" 
+                                        <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" name="name" id="name" 
+                                               value="{{ old('name') }}" 
+                                               class="form-control @error('name') is-invalid @enderror" 
                                                placeholder="Enter chief's full name" required>
-                                        @error('full_name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="title" class="form-label">Title/Rank <span class="text-danger">*</span></label>
-                                        <input type="text" name="title" id="title" 
-                                               value="{{ old('title') }}" 
-                                               class="form-control @error('title') is-invalid @enderror" 
-                                               placeholder="e.g., Nana, Oba, Togbe, Chief" required>
-                                        @error('title')
+                                        @error('name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -49,7 +40,7 @@
                                         <input type="text" name="phone" id="phone" 
                                                value="{{ old('phone') }}" 
                                                class="form-control @error('phone') is-invalid @enderror" 
-                                               placeholder="Enter phone number" required>
+                                               placeholder="e.g., 0201234567" required>
                                         @error('phone')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -70,134 +61,53 @@
 
                             <div class="col-md-6">
                                 <div class="mb-4">
-                                    <h5 class="text-primary mb-3">Chief Details</h5>
+                                    <h5 class="text-primary mb-3">
+                                        <i class="fas fa-map-marked-alt me-2"></i>Jurisdiction Details
+                                    </h5>
                                     
                                     <div class="mb-3">
-                                        <label for="traditional_area" class="form-label">Traditional Area <span class="text-danger">*</span></label>
-                                        <input type="text" name="traditional_area" id="traditional_area" 
-                                               value="{{ old('traditional_area') }}" 
-                                               class="form-control @error('traditional_area') is-invalid @enderror" 
-                                               placeholder="e.g., Ashanti, Ga, Dagbon, Ewe" required>
-                                        @error('traditional_area')
+                                        <label for="jurisdiction" class="form-label">Jurisdiction <span class="text-danger">*</span></label>
+                                        <input type="text" name="jurisdiction" id="jurisdiction" 
+                                               value="{{ old('jurisdiction') }}" 
+                                               class="form-control @error('jurisdiction') is-invalid @enderror" 
+                                               placeholder="e.g., Techiman Central, Kumasi Metro" required>
+                                        @error('jurisdiction')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="community" class="form-label">Community/Town <span class="text-danger">*</span></label>
-                                        <input type="text" name="community" id="community" 
-                                               value="{{ old('community') }}" 
-                                               class="form-control @error('community') is-invalid @enderror" 
-                                               placeholder="Enter community or town name" required>
-                                        @error('community')
+                                        <label for="area_boundaries" class="form-label">Area Boundaries</label>
+                                        <textarea name="area_boundaries" id="area_boundaries" rows="3" 
+                                                  class="form-control @error('area_boundaries') is-invalid @enderror" 
+                                                  placeholder="Describe the geographical boundaries of the chief's jurisdiction...">{{ old('area_boundaries') }}</textarea>
+                                        @error('area_boundaries')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="region" class="form-label">Region <span class="text-danger">*</span></label>
-                                        <select name="region" id="region" class="form-select @error('region') is-invalid @enderror" required>
-                                            <option value="">Select Region</option>
-                                            <option value="Greater Accra" {{ old('region') == 'Greater Accra' ? 'selected' : '' }}>Greater Accra</option>
-                                            <option value="Ashanti" {{ old('region') == 'Ashanti' ? 'selected' : '' }}>Ashanti</option>
-                                            <option value="Western" {{ old('region') == 'Western' ? 'selected' : '' }}>Western</option>
-                                            <option value="Western North" {{ old('region') == 'Western North' ? 'selected' : '' }}>Western North</option>
-                                            <option value="Eastern" {{ old('region') == 'Eastern' ? 'selected' : '' }}>Eastern</option>
-                                            <option value="Central" {{ old('region') == 'Central' ? 'selected' : '' }}>Central</option>
-                                            <option value="Volta" {{ old('region') == 'Volta' ? 'selected' : '' }}>Volta</option>
-                                            <option value="Oti" {{ old('region') == 'Oti' ? 'selected' : '' }}>Oti</option>
-                                            <option value="Bono" {{ old('region') == 'Bono' ? 'selected' : '' }}>Bono</option>
-                                            <option value="Bono East" {{ old('region') == 'Bono East' ? 'selected' : '' }}>Bono East</option>
-                                            <option value="Ahafo" {{ old('region') == 'Ahafo' ? 'selected' : '' }}>Ahafo</option>
-                                            <option value="Northern" {{ old('region') == 'Northern' ? 'selected' : '' }}>Northern</option>
-                                            <option value="North East" {{ old('region') == 'North East' ? 'selected' : '' }}>North East</option>
-                                            <option value="Savannah" {{ old('region') == 'Savannah' ? 'selected' : '' }}>Savannah</option>
-                                            <option value="Upper East" {{ old('region') == 'Upper East' ? 'selected' : '' }}>Upper East</option>
-                                            <option value="Upper West" {{ old('region') == 'Upper West' ? 'selected' : '' }}>Upper West</option>
-                                        </select>
-                                        @error('region')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="rank_level" class="form-label">Rank Level</label>
-                                        <select name="rank_level" id="rank_level" class="form-select @error('rank_level') is-invalid @enderror">
-                                            <option value="">Select Rank Level</option>
-                                            <option value="paramount" {{ old('rank_level') == 'paramount' ? 'selected' : '' }}>Paramount Chief</option>
-                                            <option value="divisional" {{ old('rank_level') == 'divisional' ? 'selected' : '' }}>Divisional Chief</option>
-                                            <option value="sub-chief" {{ old('rank_level') == 'sub-chief' ? 'selected' : '' }}>Sub-Chief</option>
-                                            <option value="queen_mother" {{ old('rank_level') == 'queen_mother' ? 'selected' : '' }}>Queen Mother</option>
-                                            <option value="elder" {{ old('rank_level') == 'elder' ? 'selected' : '' }}>Elder</option>
-                                            <option value="other" {{ old('rank_level') == 'other' ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @error('rank_level')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <label class="form-label">Chief Status</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="is_active">
+                                                Active Chief
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">Chief will be able to approve allocations when active</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
-
+                        <!-- Additional Information Section -->
                         <div class="mb-4">
-                            <h5 class="text-primary mb-3">Address Information</h5>
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Additional Information
+                            </h5>
                             
                             <div class="mb-3">
-                                <label for="address" class="form-label">Full Address <span class="text-danger">*</span></label>
-                                <textarea name="address" id="address" rows="3" 
-                                          class="form-control @error('address') is-invalid @enderror" 
-                                          placeholder="Enter chief's palace address or residence..." required>{{ old('address') }}</textarea>
-                                @error('address')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="city" class="form-label">City/Town</label>
-                                        <input type="text" name="city" id="city" 
-                                               value="{{ old('city') }}" 
-                                               class="form-control @error('city') is-invalid @enderror" 
-                                               placeholder="Enter city or town">
-                                        @error('city')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="landmarks" class="form-label">Landmarks</label>
-                                        <input type="text" name="landmarks" id="landmarks" 
-                                               value="{{ old('landmarks') }}" 
-                                               class="form-control @error('landmarks') is-invalid @enderror" 
-                                               placeholder="Enter nearby landmarks">
-                                        @error('landmarks')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">Additional Information</h5>
-                            
-                            <div class="mb-3">
-                                <label for="years_of_service" class="form-label">Years of Service</label>
-                                <input type="number" name="years_of_service" id="years_of_service" 
-                                       value="{{ old('years_of_service') }}" 
-                                       class="form-control @error('years_of_service') is-invalid @enderror" 
-                                       placeholder="Enter number of years as chief" min="0" max="100">
-                                @error('years_of_service')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="notes" class="form-label">Additional Notes</label>
+                                <label for="notes" class="form-label">Notes & Comments</label>
                                 <textarea name="notes" id="notes" rows="3" 
                                           class="form-control @error('notes') is-invalid @enderror" 
                                           placeholder="Enter any additional notes about the chief...">{{ old('notes') }}</textarea>
@@ -207,25 +117,21 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="is_active">
-                                    Active Chief
-                                </label>
-                            </div>
-                            <small class="text-muted">Uncheck to mark chief as inactive</small>
-                        </div>
-
+                        <!-- Form Actions -->
                         <div class="d-flex justify-content-between align-items-center border-top pt-4">
                             <a href="{{ route('chiefs.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Chiefs
                             </a>
                             
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>
-                                Create Chief
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="reset" class="btn btn-outline-secondary">
+                                    <i class="fas fa-redo me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    Create Chief
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -235,61 +141,228 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 0.5rem;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.375rem;
+        border: 1px solid #d1d5db;
+        padding: 0.75rem;
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .text-primary {
+        color: #3b82f6 !important;
+    }
+    
+    .btn {
+        border-radius: 0.375rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    
+    .form-check-input:checked {
+        background-color: #10b981;
+        border-color: #10b981;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+    }
+    
+    h5 {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+        font-weight: 600;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Phone number formatting (similar to your client form)
+        // Phone number formatting
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
             phoneInput.addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
-                if (value.startsWith('0')) {
-                    value = '+233' + value.substring(1);
+                
+                // Format as Ghanaian phone number (0201234567)
+                if (value.length <= 10) {
+                    e.target.value = value;
+                } else {
+                    e.target.value = value.substring(0, 10);
                 }
-                if (value.startsWith('233')) {
-                    value = '+' + value;
+            });
+            
+            // Add placeholder text dynamically
+            phoneInput.addEventListener('focus', function() {
+                if (!this.value) {
+                    this.placeholder = 'e.g., 0201234567 or 0241234567';
                 }
-                e.target.value = value;
+            });
+            
+            phoneInput.addEventListener('blur', function() {
+                this.placeholder = 'e.g., 0201234567';
+            });
+        }
+        
+        // Auto-suggest jurisdiction based on name
+        const nameInput = document.getElementById('name');
+        const jurisdictionInput = document.getElementById('jurisdiction');
+        
+        if (nameInput && jurisdictionInput) {
+            nameInput.addEventListener('blur', function() {
+                if (nameInput.value && !jurisdictionInput.value) {
+                    // Extract potential jurisdiction from name
+                    const name = nameInput.value.trim();
+                    const words = name.split(' ');
+                    if (words.length > 1) {
+                        // Use the last word as potential area name
+                        const area = words[words.length - 1];
+                        jurisdictionInput.value = area + ' Traditional Area';
+                    }
+                }
             });
         }
         
         // Form validation
         const form = document.querySelector('form');
         form.addEventListener('submit', function(e) {
-            const fullName = document.getElementById('full_name').value;
-            const title = document.getElementById('title').value;
+            const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
-            const traditionalArea = document.getElementById('traditional_area').value;
-            const community = document.getElementById('community').value;
-            const region = document.getElementById('region').value;
-            const address = document.getElementById('address').value;
+            const jurisdiction = document.getElementById('jurisdiction').value;
             
-            if (!fullName || !title || !phone || !traditionalArea || !community || !region || !address) {
+            // Basic required field validation
+            if (!name || !phone || !jurisdiction) {
                 e.preventDefault();
-                alert('Please fill in all required fields marked with *.');
+                showAlert('Please fill in all required fields marked with *.', 'error');
                 return false;
             }
             
-            // Validate phone number format
-            const phoneRegex = /^\+233[0-9]{9}$/;
-            if (phone && !phoneRegex.test(phone)) {
+            // Validate phone number format (Ghanaian numbers)
+            const phoneRegex = /^(020|024|054|055|059|026|027|028|050|057)[0-9]{7}$/;
+            if (phone && !phoneRegex.test(phone.replace(/\D/g, ''))) {
                 e.preventDefault();
-                alert('Please enter a valid Ghanaian phone number (e.g., +233XXXXXXXXX)');
+                showAlert('Please enter a valid Ghanaian phone number (e.g., 0201234567)', 'error');
                 return false;
             }
+            
+            // Validate email if provided
+            const email = document.getElementById('email').value;
+            if (email && !isValidEmail(email)) {
+                e.preventDefault();
+                showAlert('Please enter a valid email address.', 'error');
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
+            submitBtn.disabled = true;
         });
-
-        // Auto-fill city based on community
-        const communityInput = document.getElementById('community');
-        const cityInput = document.getElementById('city');
         
-        if (communityInput && cityInput) {
-            communityInput.addEventListener('blur', function() {
-                if (communityInput.value && !cityInput.value) {
-                    cityInput.value = communityInput.value;
+        // Reset form button
+        const resetBtn = form.querySelector('button[type="reset"]');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+                    form.reset();
+                    // Reset the switch to checked
+                    document.getElementById('is_active').checked = true;
                 }
             });
         }
+        
+        // Helper functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function showAlert(message, type = 'info') {
+            // Remove existing alerts
+            const existingAlert = document.querySelector('.custom-alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = `custom-alert alert alert-${type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert at the top of the form
+            form.insertBefore(alert, form.firstChild);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        // Character counter for textareas
+        const textareas = form.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            const counter = document.createElement('div');
+            counter.className = 'form-text text-end character-counter';
+            counter.textContent = `0 characters`;
+            textarea.parentNode.appendChild(counter);
+            
+            textarea.addEventListener('input', function() {
+                const count = this.value.length;
+                counter.textContent = `${count} characters`;
+                counter.className = `form-text text-end character-counter ${count > 500 ? 'text-warning' : 'text-muted'}`;
+            });
+            
+            // Trigger initial count
+            textarea.dispatchEvent(new Event('input'));
+        });
     });
 </script>
 @endpush

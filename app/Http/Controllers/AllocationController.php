@@ -175,26 +175,54 @@ class AllocationController extends Controller
     }
 
     public function generateAllocationLetter(Allocation $allocation)
-    {
+{
+    try {
         $allocation->load(['land', 'client', 'chief']);
+        
+        // Hardcoded safe filename
+        $filename = "allocation_letter.pdf";
         
         $pdf = PDF::loadView('allocations.allocation-letter', compact('allocation'));
         
-        return $pdf->download('allocation-letter-' . $allocation->land->plot_number . '.pdf');
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'Failed to generate allocation letter: ' . $e->getMessage());
     }
+}
 
-    public function generateCertificate(Allocation $allocation)
-    {
+public function generateCertificate(Allocation $allocation)
+{
+    try {
         $allocation->load(['land', 'client', 'chief']);
+        
+        // Hardcoded safe filename
+        $filename = "certificate.pdf";
         
         $pdf = PDF::loadView('allocations.certificate', compact('allocation'));
         
-        return $pdf->download('allocation-certificate-' . $allocation->land->plot_number . '.pdf');
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'Failed to generate certificate: ' . $e->getMessage());
     }
+}
 
     public function export(Request $request)
     {
-        return Excel::download(new AllocationsExport($request), 'allocations-' . date('Y-m-d') . '.xlsx');
+        try {
+            $filename = "allocations_" . date('Y-m-d') . ".xlsx";
+            return Excel::download(new AllocationsExport($request), $filename);
+        } catch (\Exception $e) {
+            logger()->error('Allocations export failed', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Export failed: ' . $e->getMessage());
+        }
     }
 
     public function import(Request $request): RedirectResponse
@@ -217,6 +245,10 @@ class AllocationController extends Controller
                 ->with('success', 'Allocations imported successfully!');
                 
         } catch (\Exception $e) {
+            logger()->error('Allocations import failed', [
+                'error' => $e->getMessage()
+            ]);
+            
             return redirect()->route('allocations.index')
                 ->with('error', 'Error importing allocations: ' . $e->getMessage());
         }
@@ -229,26 +261,36 @@ class AllocationController extends Controller
             'allocations.*' => 'exists:allocations,id'
         ]);
 
-        $allocations = Allocation::whereIn('id', $request->allocations)->get();
-        
-        foreach ($allocations as $allocation) {
-            $allocation->update([
-                'approval_status' => 'approved',
-                'chief_approval_date' => now()
+        try {
+            $allocations = Allocation::whereIn('id', $request->allocations)->get();
+            
+            foreach ($allocations as $allocation) {
+                $allocation->update([
+                    'approval_status' => 'approved',
+                    'chief_approval_date' => now()
+                ]);
+            }
+
+            $count = $allocations->count();
+
+            // Log activity
+            if (function_exists('activity')) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->log('bulk approved ' . $count . ' allocations');
+            }
+
+            return redirect()->route('allocations.index')
+                ->with('success', $count . ' allocations approved successfully!');
+                
+        } catch (\Exception $e) {
+            logger()->error('Bulk approve failed', [
+                'error' => $e->getMessage()
             ]);
+            
+            return redirect()->back()
+                ->with('error', 'Bulk approval failed: ' . $e->getMessage());
         }
-
-        $count = $allocations->count();
-
-        // Log activity
-        if (function_exists('activity')) {
-            activity()
-                ->causedBy(auth()->user())
-                ->log('bulk approved ' . $count . ' allocations');
-        }
-
-        return redirect()->route('allocations.index')
-            ->with('success', $count . ' allocations approved successfully!');
     }
 
     public function bulkReject(Request $request): RedirectResponse
@@ -258,25 +300,35 @@ class AllocationController extends Controller
             'allocations.*' => 'exists:allocations,id'
         ]);
 
-        $allocations = Allocation::whereIn('id', $request->allocations)->get();
-        
-        foreach ($allocations as $allocation) {
-            $allocation->update(['approval_status' => 'rejected']);
-            // Free up the land
-            Land::where('id', $allocation->land_id)->update(['ownership_status' => 'vacant']);
+        try {
+            $allocations = Allocation::whereIn('id', $request->allocations)->get();
+            
+            foreach ($allocations as $allocation) {
+                $allocation->update(['approval_status' => 'rejected']);
+                // Free up the land
+                Land::where('id', $allocation->land_id)->update(['ownership_status' => 'vacant']);
+            }
+
+            $count = $allocations->count();
+
+            // Log activity
+            if (function_exists('activity')) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->log('bulk rejected ' . $count . ' allocations');
+            }
+
+            return redirect()->route('allocations.index')
+                ->with('success', $count . ' allocations rejected successfully!');
+                
+        } catch (\Exception $e) {
+            logger()->error('Bulk reject failed', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Bulk rejection failed: ' . $e->getMessage());
         }
-
-        $count = $allocations->count();
-
-        // Log activity
-        if (function_exists('activity')) {
-            activity()
-                ->causedBy(auth()->user())
-                ->log('bulk rejected ' . $count . ' allocations');
-        }
-
-        return redirect()->route('allocations.index')
-            ->with('success', $count . ' allocations rejected successfully!');
     }
 
     public function bulkDelete(Request $request): RedirectResponse
@@ -286,25 +338,35 @@ class AllocationController extends Controller
             'allocations.*' => 'exists:allocations,id'
         ]);
 
-        $allocations = Allocation::whereIn('id', $request->allocations)->get();
-        
-        foreach ($allocations as $allocation) {
-            // Free up the land
-            Land::where('id', $allocation->land_id)->update(['ownership_status' => 'vacant']);
-            $allocation->delete();
+        try {
+            $allocations = Allocation::whereIn('id', $request->allocations)->get();
+            
+            foreach ($allocations as $allocation) {
+                // Free up the land
+                Land::where('id', $allocation->land_id)->update(['ownership_status' => 'vacant']);
+                $allocation->delete();
+            }
+
+            $count = $allocations->count();
+
+            // Log activity
+            if (function_exists('activity')) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->log('bulk deleted ' . $count . ' allocations');
+            }
+
+            return redirect()->route('allocations.index')
+                ->with('success', $count . ' allocations deleted successfully!');
+                
+        } catch (\Exception $e) {
+            logger()->error('Bulk delete failed', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Bulk deletion failed: ' . $e->getMessage());
         }
-
-        $count = $allocations->count();
-
-        // Log activity
-        if (function_exists('activity')) {
-            activity()
-                ->causedBy(auth()->user())
-                ->log('bulk deleted ' . $count . ' allocations');
-        }
-
-        return redirect()->route('allocations.index')
-            ->with('success', $count . ' allocations deleted successfully!');
     }
 
     /**

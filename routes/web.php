@@ -39,40 +39,50 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('settings');
     });
 
-    // Lands Management - Remove role middleware temporarily
-    Route::prefix('lands')->name('lands.')->group(function () {
+    // Lands Management - Accessible to staff and admin
+    Route::prefix('lands')->name('lands.')->middleware(['role:admin|staff'])->group(function () {
+        // Standard CRUD routes
+        Route::get('/', [LandController::class, 'index'])->name('index');
+        Route::get('/create', [LandController::class, 'create'])->name('create');
+        Route::post('/', [LandController::class, 'store'])->name('store');
+        Route::get('/{land}', [LandController::class, 'show'])->name('show');
+        Route::get('/{land}/edit', [LandController::class, 'edit'])->name('edit');
+        Route::put('/{land}', [LandController::class, 'update'])->name('update');
+        Route::delete('/{land}', [LandController::class, 'destroy'])->name('destroy');
+        
         // Export/Import
         Route::get('/export', [LandController::class, 'export'])->name('export');
         Route::post('/import', [LandController::class, 'import'])->name('import');
-        Route::get('/import-template', [LandController::class, 'downloadImportTemplate'])->name('import-template');
+        Route::get('/download-template', [LandController::class, 'downloadImportTemplate'])->name('download-template');
         
         // GIS Routes
         Route::get('/map', [LandController::class, 'map'])->name('map');
-        Route::get('/api/geojson', [LandController::class, 'getLandGeoJson'])->name('api.geojson');
+        Route::get('/api/geojson', [LandController::class, 'getLandGeoJson'])->name('geojson');
         
         // Bulk actions
         Route::post('/bulk-actions', [LandController::class, 'bulkActions'])->name('bulk-actions');
         Route::post('/bulk-delete', [LandController::class, 'bulkDelete'])->name('bulk-delete');
         
-        // Standard CRUD routes
-        Route::get('/', [LandController::class, 'index'])->name('index');
-        Route::get('/create', [LandController::class, 'create'])->name('create');
-        Route::post('/', [LandController::class, 'store'])->name('store');
-        
         // Land-specific actions
         Route::get('/{land}/documents', [LandController::class, 'documents'])->name('documents');
-        Route::post('/{land}/verify', [LandController::class, 'verify'])->name('verify');
         Route::post('/{land}/documents', [LandController::class, 'storeDocument'])->name('store-document');
+        Route::post('/{land}/verify', [LandController::class, 'verify'])->name('verify');
         
-        // Parameterized routes
-        Route::get('/{land}', [LandController::class, 'show'])->name('show');
-        Route::get('/{land}/edit', [LandController::class, 'edit'])->name('edit');
-        Route::put('/{land}', [LandController::class, 'update'])->name('update');
-        Route::delete('/{land}', [LandController::class, 'destroy'])->name('destroy');
+        // Statistics
+        Route::get('/stats/land-stats', [LandController::class, 'getLandStats'])->name('stats');
     });
 
-    // Clients Management - Remove role middleware temporarily
-    Route::prefix('clients')->name('clients.')->group(function () {
+    // Clients Management - Accessible to staff and admin
+    Route::prefix('clients')->name('clients.')->middleware(['role:admin|staff'])->group(function () {
+        // Standard CRUD routes
+        Route::get('/', [ClientController::class, 'index'])->name('index');
+        Route::get('/create', [ClientController::class, 'create'])->name('create');
+        Route::post('/', [ClientController::class, 'store'])->name('store');
+        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
+        Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
+        Route::put('/{client}', [ClientController::class, 'update'])->name('update');
+        Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
+        
         // Export/Import
         Route::get('/export', [ClientController::class, 'export'])->name('export');
         Route::post('/import', [ClientController::class, 'import'])->name('import');
@@ -82,24 +92,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/bulk-actions', [ClientController::class, 'bulkActions'])->name('bulk-actions');
         Route::post('/bulk-delete', [ClientController::class, 'bulkDelete'])->name('bulk-delete');
         
-        // Standard CRUD routes
-        Route::get('/', [ClientController::class, 'index'])->name('index');
-        Route::get('/create', [ClientController::class, 'create'])->name('create');
-        Route::post('/', [ClientController::class, 'store'])->name('store');
-        
         // Client-specific actions
         Route::get('/{client}/allocations', [ClientController::class, 'allocations'])->name('allocations');
         Route::get('/{client}/documents', [ClientController::class, 'documents'])->name('documents');
-        
-        // Parameterized routes
-        Route::get('/{client}', [ClientController::class, 'show'])->name('show');
-        Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
-        Route::put('/{client}', [ClientController::class, 'update'])->name('update');
-        Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
     });
 
-    // Allocations Management - Remove role middleware temporarily
-    Route::prefix('allocations')->name('allocations.')->group(function () {
+    // Allocations Management - Accessible to staff and admin
+    Route::prefix('allocations')->name('allocations.')->middleware(['role:admin|staff'])->group(function () {
+        // Standard CRUD routes
+        Route::get('/', [AllocationController::class, 'index'])->name('index');
+        Route::get('/create', [AllocationController::class, 'create'])->name('create');
+        Route::post('/', [AllocationController::class, 'store'])->name('store');
+        Route::get('/{allocation}', [AllocationController::class, 'show'])->name('show');
+        Route::get('/{allocation}/edit', [AllocationController::class, 'edit'])->name('edit');
+        Route::put('/{allocation}', [AllocationController::class, 'update'])->name('update');
+        Route::delete('/{allocation}', [AllocationController::class, 'destroy'])->name('destroy');
+        
         // Export/Import
         Route::get('/export', [AllocationController::class, 'export'])->name('export');
         Route::post('/import', [AllocationController::class, 'import'])->name('import');
@@ -109,11 +117,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/bulk-reject', [AllocationController::class, 'bulkReject'])->name('bulk-reject');
         Route::post('/bulk-delete', [AllocationController::class, 'bulkDelete'])->name('bulk-delete');
         
-        // Standard CRUD routes
-        Route::get('/', [AllocationController::class, 'index'])->name('index');
-        Route::get('/create', [AllocationController::class, 'create'])->name('create');
-        Route::post('/', [AllocationController::class, 'store'])->name('store');
-        
         // Approval Workflow
         Route::post('/{allocation}/approve', [AllocationController::class, 'approve'])->name('approve');
         Route::post('/{allocation}/reject', [AllocationController::class, 'reject'])->name('reject');
@@ -121,65 +124,60 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{allocation}/allocation-letter', [AllocationController::class, 'generateAllocationLetter'])->name('allocation-letter');
         Route::get('/{allocation}/certificate', [AllocationController::class, 'generateCertificate'])->name('certificate');
         
-        // Parameterized routes
-        Route::get('/{allocation}', [AllocationController::class, 'show'])->name('show');
-        Route::get('/{allocation}/edit', [AllocationController::class, 'edit'])->name('edit');
-        Route::put('/{allocation}', [AllocationController::class, 'update'])->name('update');
-        Route::delete('/{allocation}', [AllocationController::class, 'destroy'])->name('destroy');
+        // Statistics
+        Route::get('/stats/allocation-stats', [AllocationController::class, 'getAllocationStats'])->name('stats');
     });
 
-    // Chiefs Management - Remove role middleware temporarily
-    Route::prefix('chiefs')->name('chiefs.')->group(function () {
-        // Export/Import
-        Route::get('/export', [ChiefController::class, 'export'])->name('export');
-        Route::post('/import', [ChiefController::class, 'import'])->name('import');
-        
-        // GIS Routes
-        Route::get('/map', [ChiefController::class, 'map'])->name('map');
-        Route::get('/{chief}/geojson', [ChiefController::class, 'getChiefGeoJson'])->name('geojson');
-        
+    // Chiefs Management - Accessible to staff and admin
+    Route::prefix('chiefs')->name('chiefs.')->middleware(['role:admin|staff'])->group(function () {
         // Standard CRUD routes
         Route::get('/', [ChiefController::class, 'index'])->name('index');
         Route::get('/create', [ChiefController::class, 'create'])->name('create');
         Route::post('/', [ChiefController::class, 'store'])->name('store');
-        
-        // Chief-specific actions
-        Route::get('/{chief}/lands', [ChiefController::class, 'lands'])->name('lands');
-        Route::get('/{chief}/allocations', [ChiefController::class, 'allocations'])->name('allocations');
-        
-        // Parameterized routes
         Route::get('/{chief}', [ChiefController::class, 'show'])->name('show');
         Route::get('/{chief}/edit', [ChiefController::class, 'edit'])->name('edit');
         Route::put('/{chief}', [ChiefController::class, 'update'])->name('update');
         Route::delete('/{chief}', [ChiefController::class, 'destroy'])->name('destroy');
+        
+        // Export/Import
+        Route::get('/export', [ChiefController::class, 'export'])->name('export');
+        
+        // Bulk actions
+        Route::post('/bulk-actions', [ChiefController::class, 'bulkActions'])->name('bulk-actions');
+        
+        // Chief-specific actions
+        Route::patch('/{chief}/toggle-status', [ChiefController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/{chief}/lands', [ChiefController::class, 'lands'])->name('lands');
+        Route::get('/{chief}/allocations', [ChiefController::class, 'allocations'])->name('allocations');
+        
+        // Statistics
+        Route::get('/stats/chief-stats', [ChiefController::class, 'getChiefStats'])->name('stats');
     });
 
-    // Documents Management - Remove role middleware temporarily
-    Route::prefix('documents')->name('documents.')->group(function () {
+    // Documents Management - Accessible to staff and admin
+    Route::prefix('documents')->name('documents.')->middleware(['role:admin|staff'])->group(function () {
+        // Standard CRUD routes
+        Route::get('/', [DocumentController::class, 'index'])->name('index');
+        Route::post('/', [DocumentController::class, 'store'])->name('store');
+        Route::get('/{document}', [DocumentController::class, 'show'])->name('show');
+        Route::get('/{document}/edit', [DocumentController::class, 'edit'])->name('edit');
+        Route::put('/{document}', [DocumentController::class, 'update'])->name('update');
+        Route::delete('/{document}', [DocumentController::class, 'destroy'])->name('destroy');
+        
         // Bulk actions
         Route::post('/bulk-actions', [DocumentController::class, 'bulkActions'])->name('bulk-actions');
         Route::post('/bulk-delete', [DocumentController::class, 'bulkDelete'])->name('bulk-delete');
         Route::post('/bulk-verify', [DocumentController::class, 'bulkVerify'])->name('bulk-verify');
-        
-        // Standard CRUD routes
-        Route::get('/', [DocumentController::class, 'index'])->name('index');
-        Route::post('/', [DocumentController::class, 'store'])->name('store');
         
         // Document-specific actions
         Route::get('/{document}/preview', [DocumentController::class, 'preview'])->name('preview');
         Route::post('/{document}/verify', [DocumentController::class, 'verify'])->name('verify');
         Route::post('/{document}/reject', [DocumentController::class, 'reject'])->name('reject');
         Route::get('/{document}/download', [DocumentController::class, 'download'])->name('download');
-        
-        // Parameterized routes
-        Route::get('/{document}', [DocumentController::class, 'show'])->name('show');
-        Route::get('/{document}/edit', [DocumentController::class, 'edit'])->name('edit');
-        Route::put('/{document}', [DocumentController::class, 'update'])->name('update');
-        Route::delete('/{document}', [DocumentController::class, 'destroy'])->name('destroy');
     });
 
-    // Reports - Remove role middleware temporarily
-    Route::prefix('reports')->name('reports.')->group(function () {
+    // Reports - Accessible to staff and admin
+    Route::prefix('reports')->name('reports.')->middleware(['role:admin|staff'])->group(function () {
         // Main reports page
         Route::get('/', [ReportController::class, 'index'])->name('index');
         
@@ -209,41 +207,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{report}', [ReportController::class, 'destroy'])->name('destroy');
     });
 
-    // Admin Management - Remove role middleware temporarily, use controller-level auth
-    Route::prefix('admin')->name('admin.')->group(function () {
-        // Add basic authorization check for admin routes
-        Route::get('/', function () {
-            // Basic admin check - will be replaced with proper role check later
-            return redirect()->route('admin.dashboard');
-        });
-
+    // Admin Management (Restricted to Admin role only)
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
         
         // User Management
         Route::prefix('users')->name('users.')->group(function () {
+            // Standard CRUD routes
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('/create', [UserController::class, 'create'])->name('create');
+            Route::post('/', [UserController::class, 'store'])->name('store');
+            Route::get('/{user}', [UserController::class, 'show'])->name('show');
+            Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [UserController::class, 'update'])->name('update');
+            Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+            
             // Bulk actions
             Route::post('/bulk-actions', [UserController::class, 'bulkActions'])->name('bulk-actions');
             Route::post('/bulk-delete', [UserController::class, 'bulkDelete'])->name('bulk-delete');
             Route::post('/bulk-activate', [UserController::class, 'bulkActivate'])->name('bulk-activate');
             Route::post('/bulk-deactivate', [UserController::class, 'bulkDeactivate'])->name('bulk-deactivate');
             
-            // Standard CRUD routes
-            Route::get('/', [UserController::class, 'index'])->name('index');
-            Route::get('/create', [UserController::class, 'create'])->name('create');
-            Route::post('/', [UserController::class, 'store'])->name('store');
-            
             // User-specific actions
             Route::post('/{user}/activate', [UserController::class, 'activate'])->name('activate');
             Route::post('/{user}/deactivate', [UserController::class, 'deactivate'])->name('deactivate');
             Route::post('/{user}/impersonate', [UserController::class, 'impersonate'])->name('impersonate');
             Route::post('/{user}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
-            
-            // Parameterized routes
-            Route::get('/{user}', [UserController::class, 'show'])->name('show');
-            Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
-            Route::put('/{user}', [UserController::class, 'update'])->name('update');
-            Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
         });
         
         // System Settings
@@ -281,8 +271,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('health');
     });
 
-    // Chief-specific routes - Remove role middleware temporarily
-    Route::prefix('chief')->name('chief.')->group(function () {
+    // Chief-specific routes (Restricted to Chief role only)
+    Route::middleware(['role:chief'])->prefix('chief')->name('chief.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'chief'])->name('dashboard');
         Route::get('/lands', [LandController::class, 'chiefLands'])->name('lands');
         Route::get('/allocations', [AllocationController::class, 'chiefAllocations'])->name('allocations');
@@ -296,6 +286,15 @@ Route::prefix('api')->name('api.')->group(function () {
     
     // Public statistics (read-only)
     Route::get('/public/stats', [DashboardController::class, 'getPublicStats'])->name('public.stats');
+    
+    // Land statistics
+    Route::get('/land-stats', [LandController::class, 'getLandStats'])->name('land-stats');
+    
+    // Allocation statistics
+    Route::get('/allocation-stats', [AllocationController::class, 'getAllocationStats'])->name('allocation-stats');
+    
+    // Chief statistics
+    Route::get('/chief-stats', [ChiefController::class, 'getChiefStats'])->name('chief-stats');
 });
 
 // Health check route (for monitoring)

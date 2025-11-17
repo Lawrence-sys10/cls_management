@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 {
@@ -34,6 +35,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
+    ];
+
+    // Add appends for accessors
+    protected $appends = [
+        'role_name',
+        'is_administrator',
+        'is_staff_member',
+        'is_chief',
+        'status',
+        'status_badge_class',
+        'initials'
     ];
 
     public function staff(): HasOne
@@ -77,65 +89,81 @@ class User extends Authenticatable
     /**
      * Get the user's primary role name for display.
      */
-    public function getRoleNameAttribute(): string
+    protected function roleName(): Attribute
     {
-        return $this->roles->first()->name ?? 'No Role';
+        return Attribute::make(
+            get: fn () => $this->roles->first()->name ?? 'No Role'
+        );
     }
 
     /**
      * Check if user is administrator.
      */
-    public function getIsAdministratorAttribute(): bool
+    protected function isAdministrator(): Attribute
     {
-        return $this->hasRole('admin');
+        return Attribute::make(
+            get: fn () => $this->hasRole('admin')
+        );
     }
 
     /**
      * Check if user is staff member.
      */
-    public function getIsStaffAttribute(): bool
+    protected function isStaffMember(): Attribute
     {
-        return $this->hasRole('staff') || $this->user_type === 'staff';
+        return Attribute::make(
+            get: fn () => $this->hasRole('staff') || $this->user_type === 'staff'
+        );
     }
 
     /**
      * Check if user is chief.
      */
-    public function getIsChiefAttribute(): bool
+    protected function isChief(): Attribute
     {
-        return $this->hasRole('chief');
+        return Attribute::make(
+            get: fn () => $this->hasRole('chief')
+        );
     }
 
     /**
      * Get the user's display status.
      */
-    public function getStatusAttribute(): string
+    protected function status(): Attribute
     {
-        return $this->is_active ? 'Active' : 'Inactive';
+        return Attribute::make(
+            get: fn () => $this->is_active ? 'Active' : 'Inactive'
+        );
     }
 
     /**
      * Get the user's status badge class.
      */
-    public function getStatusBadgeClassAttribute(): string
+    protected function statusBadgeClass(): Attribute
     {
-        return $this->is_active ? 'bg-success' : 'bg-danger';
+        return Attribute::make(
+            get: fn () => $this->is_active ? 'bg-success' : 'bg-danger'
+        );
     }
 
     /**
      * Get the user's initials for avatar.
      */
-    public function getInitialsAttribute(): string
+    protected function initials(): Attribute
     {
-        $names = explode(' ', $this->name);
-        $initials = '';
-        
-        foreach ($names as $name) {
-            $initials .= strtoupper(substr($name, 0, 1));
-            if (strlen($initials) >= 2) break;
-        }
-        
-        return $initials;
+        return Attribute::make(
+            get: function () {
+                $names = explode(' ', $this->name);
+                $initials = '';
+                
+                foreach ($names as $name) {
+                    $initials .= strtoupper(substr($name, 0, 1));
+                    if (strlen($initials) >= 2) break;
+                }
+                
+                return $initials ?: 'U';
+            }
+        );
     }
 
     /**
@@ -240,7 +268,7 @@ class User extends Authenticatable
             $roles = func_get_args();
         }
 
-        return $this->roles()->whereIn('name', $roles)->exists();
+        return $this->roles()->whereIn('name', (array)$roles)->exists();
     }
 
     /**
@@ -251,6 +279,22 @@ class User extends Authenticatable
         return static::whereHas('roles', function($query) use ($role) {
             $query->where('name', $role);
         });
+    }
+
+    /**
+     * Assign default role based on user_type.
+     */
+    public function assignDefaultRole(): void
+    {
+        if ($this->roles->isEmpty()) {
+            $role = match($this->user_type) {
+                'admin' => 'admin',
+                'chief' => 'chief',
+                default => 'staff'
+            };
+            
+            $this->assignRole($role);
+        }
     }
 
     /**
@@ -265,6 +309,11 @@ class User extends Authenticatable
             if (empty($user->user_type)) {
                 $user->user_type = 'staff';
             }
+        });
+
+        // Assign default role after creation
+        static::created(function ($user) {
+            $user->assignDefaultRole();
         });
 
         // Hash password when setting it
@@ -282,6 +331,9 @@ class User extends Authenticatable
             
             // Delete activity logs
             $user->activityLogs()->delete();
+            
+            // Remove roles
+            $user->roles()->detach();
         });
     }
 }

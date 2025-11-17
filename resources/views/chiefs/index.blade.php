@@ -7,11 +7,11 @@
     <a href="{{ route('chiefs.export') }}" class="btn btn-success">
         <i class="fas fa-file-export me-2"></i>Export
     </a>
-    @can('admin')
+    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('staff'))
     <a href="{{ route('chiefs.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>Add Chief
     </a>
-    @endcan
+    @endif
 @endsection
 
 @section('content')
@@ -53,8 +53,8 @@
         <div class="stat-card">
             <div class="stat-header">
                 <div class="stat-info">
-                    <h3>Total Lands</h3>
-                    <div class="stat-value">{{ $totalLands ?? 0 }}</div>
+                    <h3>Total Allocations</h3>
+                    <div class="stat-value">{{ \App\Models\Allocation::whereHas('chief')->count() }}</div>
                     <div class="stat-trend trend-up">
                         <i class="fas fa-map-marked-alt"></i>
                         <span>Under management</span>
@@ -75,11 +75,11 @@
                 <a href="{{ route('chiefs.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-file-export me-1"></i>Export
                 </a>
-                @can('admin')
+                @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('staff'))
                 <a href="{{ route('chiefs.create') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus me-1"></i>Add Chief
                 </a>
-                @endcan
+                @endif
             </div>
         </div>
         <div class="card-body">
@@ -90,7 +90,7 @@
                         <label for="search" class="form-label">Search Chiefs</label>
                         <input type="text" name="search" id="search" value="{{ request('search') }}" 
                                class="form-control"
-                               placeholder="Search by name, title, or region...">
+                               placeholder="Search by name, jurisdiction, phone, or email...">
                     </div>
                     <div class="col-md-3">
                         <label for="status" class="form-label">Status</label>
@@ -114,10 +114,10 @@
                     <thead>
                         <tr>
                             <th>Chief</th>
-                            <th>Title & Region</th>
+                            <th>Jurisdiction</th>
                             <th>Contact</th>
                             <th>Status</th>
-                            <th>Lands Managed</th>
+                            <th>Allocations</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -139,8 +139,10 @@
                             </td>
                             <td>
                                 <div class="text-dark">
-                                    <div class="fw-semibold">{{ $chief->title ?? 'Traditional Leader' }}</div>
-                                    <small class="text-muted">{{ $chief->jurisdiction ?? $chief->region ?? 'Not specified' }}</small>
+                                    <div class="fw-semibold">{{ $chief->jurisdiction }}</div>
+                                    @if($chief->area_boundaries)
+                                    <small class="text-muted">{{ Str::limit($chief->area_boundaries, 50) }}</small>
+                                    @endif
                                 </div>
                             </td>
                             <td>
@@ -167,7 +169,7 @@
                             <td>
                                 <span class="badge bg-primary bg-opacity-10 text-primary">
                                     <i class="fas fa-map-marked-alt me-1"></i>
-                                    {{ $chief->lands_count ?? 0 }} land(s)
+                                    {{ $chief->allocations_count ?? $chief->allocations()->count() }} allocation(s)
                                 </span>
                             </td>
                             <td>
@@ -175,11 +177,11 @@
                                     <a href="{{ route('chiefs.show', $chief) }}" class="btn btn-sm btn-outline-primary" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @can('admin')
+                                    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('staff'))
                                     <a href="{{ route('chiefs.edit', $chief) }}" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    @endcan
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -200,11 +202,11 @@
                 <i class="fas fa-crown fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">No chiefs found</h5>
                 <p class="text-muted">Get started by adding your first chief.</p>
-                @can('admin')
+                @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('staff'))
                 <a href="{{ route('chiefs.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Add Chief
                 </a>
-                @endcan
+                @endif
             </div>
             @endif
         </div>
@@ -223,11 +225,11 @@
     
     .stat-card {
         background: white;
-        border-radius: var(--border-radius);
+        border-radius: 0.5rem;
         padding: 1.5rem;
-        box-shadow: var(--shadow);
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         transition: transform 0.3s, box-shadow 0.3s;
-        border-left: 4px solid var(--primary);
+        border-left: 4px solid #4361ee;
         position: relative;
         overflow: hidden;
     }
@@ -239,7 +241,7 @@
         left: 0;
         width: 100%;
         height: 4px;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        background: linear-gradient(90deg, #4361ee, #3a0ca3);
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.3s;
@@ -247,7 +249,7 @@
     
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
     
     .stat-card:hover::before {
@@ -264,7 +266,7 @@
     .stat-info h3 {
         font-size: 0.9rem;
         font-weight: 500;
-        color: var(--gray-600);
+        color: #6c757d;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         margin-bottom: 0.25rem;
@@ -273,7 +275,7 @@
     .stat-value {
         font-size: 2rem;
         font-weight: 700;
-        color: var(--dark);
+        color: #212529;
     }
     
     .stat-icon {
@@ -288,17 +290,17 @@
     
     .stat-card:nth-child(1) .stat-icon {
         background: rgba(67, 97, 238, 0.1);
-        color: var(--primary);
+        color: #4361ee;
     }
     
     .stat-card:nth-child(2) .stat-icon {
-        background: rgba(76, 201, 240, 0.1);
-        color: var(--success);
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
     }
     
     .stat-card:nth-child(3) .stat-icon {
-        background: rgba(247, 37, 133, 0.1);
-        color: var(--warning);
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
     }
     
     .stat-trend {
@@ -306,15 +308,15 @@
         align-items: center;
         font-size: 0.85rem;
         margin-top: 0.5rem;
-        color: var(--gray-600);
+        color: #6c757d;
     }
     
     .trend-up {
-        color: #10b981;
+        color: #28a745;
     }
     
     .trend-down {
-        color: var(--danger);
+        color: #dc3545;
     }
     
     .avatar-sm {
@@ -338,12 +340,22 @@
         padding: 0.25rem 0.5rem;
         border-radius: 6px;
     }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
 </style>
 @endpush
 
 @push('scripts')
 <script>
     $(document).ready(function() {
+        // Initialize DataTable if the table exists
+        if ($.fn.DataTable.isDataTable('#chiefsTable')) {
+            $('#chiefsTable').DataTable().destroy();
+        }
+        
         $('#chiefsTable').DataTable({
             paging: false,
             info: false,
@@ -355,6 +367,18 @@
             columnDefs: [
                 { orderable: false, targets: [5] } // Disable sorting for actions column
             ]
+        });
+
+        // Auto-submit form when status changes
+        $('#status').change(function() {
+            $(this).closest('form').submit();
+        });
+
+        // Clear search when clear button is clicked
+        $('input[name="search"]').on('input', function() {
+            if (!this.value) {
+                $(this).closest('form').submit();
+            }
         });
     });
 </script>
