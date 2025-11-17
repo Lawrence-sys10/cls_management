@@ -4,23 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Chief;
 use App\Models\Allocation;
+use App\Models\Land;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Str;
 
 class ChiefController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Chief::query();
+        $query = Chief::withCount('allocations');
 
         if ($request->has('search') && $request->search) {
             $query->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('jurisdiction', 'like', '%' . $request->search . '%')
                   ->orWhere('phone', 'like', '%' . $request->search . '%')
                   ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
         }
 
         $chiefs = $query->latest()->paginate(20);
@@ -287,7 +298,31 @@ class ChiefController extends Controller
 
     public function lands(Chief $chief): View
     {
-        $lands = $chief->lands()->latest()->paginate(15);
+        $lands = Land::where('chief_id', $chief->id)->latest()->paginate(15);
         return view('chiefs.lands', compact('chief', 'lands'));
+    }
+
+    /**
+     * Get chief's map view
+     */
+    public function map(): View
+    {
+        $chiefs = Chief::where('is_active', true)->get();
+        return view('chiefs.map', compact('chiefs'));
+    }
+
+    /**
+     * Get chief's GeoJSON data for maps
+     */
+    public function getChiefGeoJson(Chief $chief): JsonResponse
+    {
+        // This would typically return GeoJSON data for the chief's jurisdiction
+        // For now, return empty feature collection
+        $geoJson = [
+            'type' => 'FeatureCollection',
+            'features' => []
+        ];
+
+        return response()->json($geoJson);
     }
 }
