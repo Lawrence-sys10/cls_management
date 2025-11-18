@@ -17,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AllocationsExport;
 use App\Imports\AllocationsImport;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AllocationController extends Controller
 {
@@ -175,40 +176,40 @@ class AllocationController extends Controller
     }
 
     public function generateAllocationLetter(Allocation $allocation)
-{
-    try {
-        $allocation->load(['land', 'client', 'chief']);
-        
-        // Hardcoded safe filename
-        $filename = "allocation_letter.pdf";
-        
-        $pdf = PDF::loadView('allocations.allocation-letter', compact('allocation'));
-        
-        return $pdf->download($filename);
-        
-    } catch (\Exception $e) {
-        return redirect()->back()
-            ->with('error', 'Failed to generate allocation letter: ' . $e->getMessage());
+    {
+        try {
+            $allocation->load(['land', 'client', 'chief']);
+            
+            // Hardcoded safe filename
+            $filename = "allocation_letter.pdf";
+            
+            $pdf = PDF::loadView('allocations.allocation-letter', compact('allocation'));
+            
+            return $pdf->download($filename);
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to generate allocation letter: ' . $e->getMessage());
+        }
     }
-}
 
-public function generateCertificate(Allocation $allocation)
-{
-    try {
-        $allocation->load(['land', 'client', 'chief']);
-        
-        // Hardcoded safe filename
-        $filename = "certificate.pdf";
-        
-        $pdf = PDF::loadView('allocations.certificate', compact('allocation'));
-        
-        return $pdf->download($filename);
-        
-    } catch (\Exception $e) {
-        return redirect()->back()
-            ->with('error', 'Failed to generate certificate: ' . $e->getMessage());
+    public function generateCertificate(Allocation $allocation)
+    {
+        try {
+            $allocation->load(['land', 'client', 'chief']);
+            
+            // Hardcoded safe filename
+            $filename = "certificate.pdf";
+            
+            $pdf = PDF::loadView('allocations.certificate', compact('allocation'));
+            
+            return $pdf->download($filename);
+            
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Failed to generate certificate: ' . $e->getMessage());
+        }
     }
-}
 
     public function export(Request $request)
     {
@@ -252,6 +253,67 @@ public function generateCertificate(Allocation $allocation)
             return redirect()->route('allocations.index')
                 ->with('error', 'Error importing allocations: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Download allocation import template
+     */
+    public function downloadImportTemplate(): StreamedResponse
+    {
+        $filename = 'allocation-import-template.csv';
+        
+        return response()->streamDownload(function () {
+            $handle = fopen('php://output', 'w');
+            
+            // Add UTF-8 BOM for Excel compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+            
+            // Add headers
+            fputcsv($handle, [
+                'land_id',
+                'client_id', 
+                'chief_id',
+                'allocation_date',
+                'price',
+                'approval_status',
+                'notes'
+            ]);
+            
+            // Add example rows
+            fputcsv($handle, [
+                '1',
+                '1',
+                '1',
+                '2024-01-15',
+                '50000',
+                'approved',
+                'Sample approved allocation'
+            ]);
+            
+            fputcsv($handle, [
+                '2',
+                '2',
+                '2',
+                '2024-01-20',
+                '75000',
+                'pending',
+                'Sample pending allocation'
+            ]);
+            
+            fputcsv($handle, [
+                '3',
+                '3',
+                '3',
+                '2024-01-25',
+                '60000',
+                'rejected',
+                'Sample rejected allocation'
+            ]);
+            
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function bulkApprove(Request $request): RedirectResponse

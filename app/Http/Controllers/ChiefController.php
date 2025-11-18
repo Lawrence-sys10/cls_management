@@ -11,6 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ChiefsImport;
 
 class ChiefController extends Controller
 {
@@ -207,6 +209,100 @@ class ChiefController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Import chiefs from CSV/Excel file
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240' // 10MB max
+        ]);
+
+        try {
+            Excel::import(new ChiefsImport, $request->file('file'));
+            
+            // Log activity
+            if (function_exists('activity')) {
+                activity()
+                    ->causedBy(auth()->user())
+                    ->log('imported chiefs from file');
+            }
+            
+            return redirect()->route('chiefs.index')
+                ->with('success', 'Chiefs imported successfully!');
+                
+        } catch (\Exception $e) {
+            logger()->error('Chiefs import failed', [
+                'error' => $e->getMessage(),
+                'file' => $request->file('file')->getClientOriginalName()
+            ]);
+            
+            return redirect()->route('chiefs.index')
+                ->with('error', 'Error importing chiefs: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download chief import template
+     */
+    public function downloadImportTemplate(): StreamedResponse
+    {
+        $filename = 'chief-import-template.csv';
+        
+        return response()->streamDownload(function () {
+            $handle = fopen('php://output', 'w');
+            
+            // Add UTF-8 BOM for Excel compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+            
+            // Add headers
+            fputcsv($handle, [
+                'name',
+                'jurisdiction',
+                'phone',
+                'email',
+                'region',
+                'area_boundaries',
+                'is_active'
+            ]);
+            
+            // Add example rows
+            fputcsv($handle, [
+                'Nana Kwame Asante',
+                'East Legon Traditional Area',
+                '+233201234567',
+                'nana.kwame@example.com',
+                'Greater Accra',
+                'East Legon, Adjiringanor, Ogbojo',
+                'true'
+            ]);
+            
+            fputcsv($handle, [
+                'Nana Adwoa Mensah',
+                'Airport Residential Area',
+                '+233241234568',
+                'nana.adwoa@example.com',
+                'Greater Accra',
+                'Airport Residential, Cantonments',
+                'true'
+            ]);
+            
+            fputcsv($handle, [
+                'Nana Yaw Boateng',
+                'Abuja Traditional Council',
+                '+233271234569',
+                'nana.yaw@example.com',
+                'Eastern',
+                'Abuja, Nsawam Road',
+                'false'
+            ]);
+            
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function bulkActions(Request $request): RedirectResponse

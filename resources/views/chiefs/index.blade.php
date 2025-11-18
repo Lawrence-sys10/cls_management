@@ -4,6 +4,9 @@
 @section('subtitle', 'Manage traditional chiefs and authorities')
 
 @section('actions')
+    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#importModal">
+        <i class="fas fa-file-import me-2"></i>Import
+    </button>
     <a href="{{ route('chiefs.export') }}" class="btn btn-success">
         <i class="fas fa-file-export me-2"></i>Export
     </a>
@@ -72,6 +75,9 @@
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Chief Records</h5>
             <div class="header-actions">
+                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="fas fa-file-import me-1"></i>Import
+                </button>
                 <a href="{{ route('chiefs.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-file-export me-1"></i>Export
                 </a>
@@ -208,14 +214,94 @@
             <div class="text-center py-5">
                 <i class="fas fa-crown fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">No chiefs found</h5>
-                <p class="text-muted">Get started by adding your first chief.</p>
-                @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('staff'))
-                <a href="{{ route('chiefs.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Add Chief
-                </a>
-                @endif
+                <p class="text-muted">Get started by adding your first chief or importing data.</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <i class="fas fa-file-import me-2"></i>Import Data
+                    </button>
+                    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('staff'))
+                    <a href="{{ route('chiefs.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Chief
+                    </a>
+                    @endif
+                </div>
             </div>
             @endif
+        </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">
+                    <i class="fas fa-file-import me-2"></i>Import Chief Data
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('chiefs.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Select CSV/Excel File</label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx,.xls" required>
+                                <div class="form-text">
+                                    Supported formats: CSV, Excel (.xlsx, .xls)
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading mb-2">
+                                    <i class="fas fa-info-circle me-2"></i>Import Instructions
+                                </h6>
+                                <ul class="mb-0 small">
+                                    <li>File should include columns: Name, Jurisdiction, Phone, Email, etc.</li>
+                                    <li>First row should contain column headers</li>
+                                    <li>Ensure data follows the correct format</li>
+                                    <li>Maximum file size: 10MB</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="template-section">
+                                <h6 class="mb-3">Download Sample Template</h6>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-primary btn-download-template" onclick="downloadSampleTemplate()">
+                                        <i class="fas fa-download me-2"></i>Download CSV Template
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-download-template" onclick="downloadSampleTemplate('excel')">
+                                        <i class="fas fa-download me-2"></i>Download Excel Template
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <h6 class="small">Template Structure:</h6>
+                                    <div class="template-preview bg-light p-2 small border rounded">
+                                        <code>
+name,jurisdiction,phone,email,region,area_boundaries,is_active<br>
+Nana Kwame Asante,East Legon Traditional Area,+233201234567,nana.kwame@example.com,Greater Accra,"East Legon, Adjiringanor, Ogbojo",true<br>
+Nana Adwoa Mensah,Airport Residential Area,+233241234568,nana.adwoa@example.com,Greater Accra,"Airport Residential, Cantonments",true<br>
+Nana Yaw Boateng,Abuja Traditional Council,+233271234569,nana.yaw@example.com,Eastern,"Abuja, Nsawam Road",true
+                                        </code>
+                                    </div>
+                                    <p class="small text-muted mt-2">Use the downloaded template and fill with your data.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Import Data
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -351,6 +437,29 @@
     .header-actions {
         display: flex;
         gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .template-section {
+        border-left: 3px solid #17a2b8;
+        padding-left: 1rem;
+    }
+    
+    .btn-download-template {
+        padding: 0.75rem 1rem;
+        text-align: left;
+    }
+    
+    .template-preview {
+        max-height: 120px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .template-preview code {
+        background: transparent;
+        color: #212529;
+        white-space: pre-wrap;
     }
 </style>
 @endpush
@@ -376,6 +485,14 @@
             ]
         });
 
+        // Show file name when selected
+        $('#file').on('change', function() {
+            const fileName = $(this).val().split('\\').pop();
+            if (fileName) {
+                $(this).next('.form-text').html(`Selected file: <strong>${fileName}</strong>`);
+            }
+        });
+
         // Auto-submit form when status changes
         $('#status').change(function() {
             $(this).closest('form').submit();
@@ -388,5 +505,73 @@
             }
         });
     });
+
+    function downloadSampleTemplate(format = 'csv') {
+        // Create sample data for chiefs
+        const headers = ['name', 'jurisdiction', 'phone', 'email', 'region', 'area_boundaries', 'is_active'];
+        const sampleData = [
+            ['Nana Kwame Asante', 'East Legon Traditional Area', '+233201234567', 'nana.kwame@example.com', 'Greater Accra', 'East Legon, Adjiringanor, Ogbojo', 'true'],
+            ['Nana Adwoa Mensah', 'Airport Residential Area', '+233241234568', 'nana.adwoa@example.com', 'Greater Accra', 'Airport Residential, Cantonments', 'true'],
+            ['Nana Yaw Boateng', 'Abuja Traditional Council', '+233271234569', 'nana.yaw@example.com', 'Eastern', 'Abuja, Nsawam Road', 'true']
+        ];
+
+        if (format === 'csv') {
+            downloadCSV(headers, sampleData, 'chief-import-template.csv');
+        } else {
+            downloadExcel(headers, sampleData, 'chief-import-template.xlsx');
+        }
+    }
+
+    function downloadCSV(headers, data, filename) {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Add headers
+        csvContent += headers.join(',') + '\r\n';
+        
+        // Add data rows
+        data.forEach(row => {
+            csvContent += row.join(',') + '\r\n';
+        });
+        
+        // Create download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        
+        // Trigger download
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function downloadExcel(headers, data, filename) {
+        // For Excel, we'll create a simple CSV but with .xlsx extension
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Add headers
+        csvContent += headers.join(',') + '\r\n';
+        
+        // Add data rows
+        data.forEach(row => {
+            csvContent += row.join(',') + '\r\n';
+        });
+        
+        // Create download link with .xlsx extension
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        
+        // Trigger download
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show info message for Excel
+        setTimeout(() => {
+            alert('Note: For full Excel support, please use the CSV template or install proper Excel export functionality.');
+        }, 1000);
+    }
 </script>
 @endpush

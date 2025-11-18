@@ -112,6 +112,17 @@
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Generated Reports</h5>
             <div class="header-actions">
+                <!-- Simplified Export Button - Single CSV Option -->
+                <form action="{{ route('reports.export') }}" method="POST" class="d-inline me-2">
+                    @csrf
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                    <input type="hidden" name="type" value="{{ request('type') }}">
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                    <input type="hidden" name="format" value="csv">
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-download me-1"></i>Export CSV
+                    </button>
+                </form>
                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#generateReportModal">
                     <i class="fas fa-plus me-1"></i>Generate Report
                 </button>
@@ -315,7 +326,6 @@
                             <label for="format" class="form-label">Export Format</label>
                             <select class="form-control" id="format" name="format" required>
                                 <option value="pdf">PDF Document</option>
-                                <option value="excel">Excel Spreadsheet</option>
                                 <option value="csv">CSV File</option>
                             </select>
                         </div>
@@ -476,6 +486,10 @@
     .btn-group .btn {
         padding: 0.25rem 0.5rem;
         border-radius: 6px;
+    }
+    
+    .header-actions .btn-group .btn {
+        padding: 0.375rem 0.75rem;
     }
 </style>
 @endpush

@@ -22,7 +22,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="land_id" class="form-label">Select Land Plot <span class="text-danger">*</span></label>
-                                        <select name="land_id" id="land_id" class="form-select @error('land_id') is-invalid @enderror" required>
+                                        <select name="land_id" id="land_id" class="form-select select2 @error('land_id') is-invalid @enderror" required>
                                             <option value="">Choose Land Plot...</option>
                                             @foreach($lands as $land)
                                             <option value="{{ $land->id }}" {{ old('land_id', request('land_id')) == $land->id ? 'selected' : '' }}>
@@ -61,7 +61,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="client_id" class="form-label">Select Client <span class="text-danger">*</span></label>
-                                        <select name="client_id" id="client_id" class="form-select @error('client_id') is-invalid @enderror" required>
+                                        <select name="client_id" id="client_id" class="form-select select2 @error('client_id') is-invalid @enderror" required>
                                             <option value="">Choose Client...</option>
                                             @foreach($clients as $client)
                                             <option value="{{ $client->id }}" {{ old('client_id', request('client_id')) == $client->id ? 'selected' : '' }}>
@@ -104,7 +104,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="chief_id" class="form-label">Approving Chief <span class="text-danger">*</span></label>
-                                        <select name="chief_id" id="chief_id" class="form-select @error('chief_id') is-invalid @enderror" required>
+                                        <select name="chief_id" id="chief_id" class="form-select select2 @error('chief_id') is-invalid @enderror" required>
                                             <option value="">Select Chief...</option>
                                             @foreach($chiefs as $chief)
                                             <option value="{{ $chief->id }}" {{ old('chief_id') == $chief->id ? 'selected' : '' }}>
@@ -135,7 +135,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="payment_status" class="form-label">Payment Status <span class="text-danger">*</span></label>
-                                        <select name="payment_status" id="payment_status" class="form-select @error('payment_status') is-invalid @enderror" required>
+                                        <select name="payment_status" id="payment_status" class="form-select select2 @error('payment_status') is-invalid @enderror" required>
                                             <option value="pending" {{ old('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                             <option value="partial" {{ old('payment_status') == 'partial' ? 'selected' : '' }}>Partial Payment</option>
                                             <option value="paid" {{ old('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
@@ -158,7 +158,7 @@
 
                                     <div class="mb-3">
                                         <label for="processed_by" class="form-label">Processed By <span class="text-danger">*</span></label>
-                                        <select name="processed_by" id="processed_by" class="form-select @error('processed_by') is-invalid @enderror" required>
+                                        <select name="processed_by" id="processed_by" class="form-select select2 @error('processed_by') is-invalid @enderror" required>
                                             <option value="">Select Staff...</option>
                                             @foreach($staff as $staffMember)
                                             <option value="{{ $staffMember->id }}" {{ old('processed_by') == $staffMember->id ? 'selected' : '' }}>
@@ -215,9 +215,34 @@
 </div>
 @endsection
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+        padding: 4px 12px;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+    }
+</style>
+@endpush
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for all dropdowns
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            placeholder: function() {
+                return $(this).data('placeholder') || 'Select an option...';
+            },
+            allowClear: true,
+            width: '100%'
+        });
+
         // Set minimum date to today
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('allocation_date').min = today;
@@ -227,29 +252,15 @@
         const landDetails = document.getElementById('land-details');
         
         if (landSelect) {
-            landSelect.addEventListener('change', function() {
+            // Initial trigger for pre-selected values
+            if (landSelect.value) {
+                updateLandDetails(landSelect.value);
+            }
+
+            // Listen for Select2 change events
+            $(landSelect).on('change', function() {
                 const landId = this.value;
-                
-                if (landId) {
-                    // Show loading state
-                    document.getElementById('land-chief').textContent = 'Loading...';
-                    document.getElementById('land-price').textContent = '0.00';
-                    document.getElementById('land-use').textContent = 'Loading...';
-                    document.getElementById('land-status').textContent = 'Loading...';
-                    
-                    // In a real application, you would fetch land details via AJAX
-                    // For now, we'll simulate with sample data
-                    setTimeout(() => {
-                        document.getElementById('land-chief').textContent = 'Chief Kwame';
-                        document.getElementById('land-price').textContent = '15,000.00';
-                        document.getElementById('land-use').textContent = 'Residential';
-                        document.getElementById('land-status').textContent = 'Available';
-                        
-                        landDetails.style.display = 'block';
-                    }, 500);
-                } else {
-                    landDetails.style.display = 'none';
-                }
+                updateLandDetails(landId);
             });
         }
 
@@ -258,29 +269,61 @@
         const clientDetails = document.getElementById('client-details');
         
         if (clientSelect) {
-            clientSelect.addEventListener('change', function() {
+            // Initial trigger for pre-selected values
+            if (clientSelect.value) {
+                updateClientDetails(clientSelect.value);
+            }
+
+            // Listen for Select2 change events
+            $(clientSelect).on('change', function() {
                 const clientId = this.value;
-                
-                if (clientId) {
-                    // Show loading state
-                    document.getElementById('client-occupation').textContent = 'Loading...';
-                    document.getElementById('client-id-type').textContent = 'Loading...';
-                    document.getElementById('client-address').textContent = 'Loading...';
-                    document.getElementById('client-email').textContent = 'Loading...';
-                    
-                    // Similar to land details, you would fetch client details via AJAX
-                    setTimeout(() => {
-                        document.getElementById('client-occupation').textContent = 'Business Owner';
-                        document.getElementById('client-id-type').textContent = 'Ghana Card';
-                        document.getElementById('client-address').textContent = 'Accra, Ghana';
-                        document.getElementById('client-email').textContent = 'client@example.com';
-                        
-                        clientDetails.style.display = 'block';
-                    }, 500);
-                } else {
-                    clientDetails.style.display = 'none';
-                }
+                updateClientDetails(clientId);
             });
+        }
+
+        function updateLandDetails(landId) {
+            if (landId) {
+                // Show loading state
+                document.getElementById('land-chief').textContent = 'Loading...';
+                document.getElementById('land-price').textContent = '0.00';
+                document.getElementById('land-use').textContent = 'Loading...';
+                document.getElementById('land-status').textContent = 'Loading...';
+                
+                // In a real application, you would fetch land details via AJAX
+                // For now, we'll simulate with sample data
+                setTimeout(() => {
+                    document.getElementById('land-chief').textContent = 'Chief Kwame';
+                    document.getElementById('land-price').textContent = '15,000.00';
+                    document.getElementById('land-use').textContent = 'Residential';
+                    document.getElementById('land-status').textContent = 'Available';
+                    
+                    landDetails.style.display = 'block';
+                }, 500);
+            } else {
+                landDetails.style.display = 'none';
+            }
+        }
+
+        function updateClientDetails(clientId) {
+            if (clientId) {
+                // Show loading state
+                document.getElementById('client-occupation').textContent = 'Loading...';
+                document.getElementById('client-id-type').textContent = 'Loading...';
+                document.getElementById('client-address').textContent = 'Loading...';
+                document.getElementById('client-email').textContent = 'Loading...';
+                
+                // Similar to land details, you would fetch client details via AJAX
+                setTimeout(() => {
+                    document.getElementById('client-occupation').textContent = 'Business Owner';
+                    document.getElementById('client-id-type').textContent = 'Ghana Card';
+                    document.getElementById('client-address').textContent = 'Accra, Ghana';
+                    document.getElementById('client-email').textContent = 'client@example.com';
+                    
+                    clientDetails.style.display = 'block';
+                }, 500);
+            } else {
+                clientDetails.style.display = 'none';
+            }
         }
 
         // Form validation
@@ -299,6 +342,14 @@
                 }
             });
         }
+
+        // Ensure Select2 works properly with Bootstrap validation
+        $('.select2').on('change', function() {
+            if ($(this).hasClass('is-invalid')) {
+                $(this).removeClass('is-invalid');
+                $(this).next('.invalid-feedback').remove();
+            }
+        });
     });
 </script>
 @endpush

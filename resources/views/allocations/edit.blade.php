@@ -24,7 +24,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="land_id" class="form-label">Land Plot <span class="text-danger">*</span></label>
-                                        <select name="land_id" id="land_id" class="form-select @error('land_id') is-invalid @enderror" required>
+                                        <select name="land_id" id="land_id" class="form-select select2 @error('land_id') is-invalid @enderror" required>
                                             <option value="">Select Land Plot...</option>
                                             @foreach($lands as $land)
                                             <option value="{{ $land->id }}" {{ old('land_id', $allocation->land_id) == $land->id ? 'selected' : '' }}>
@@ -39,7 +39,7 @@
 
                                     <div class="mb-3">
                                         <label for="client_id" class="form-label">Client <span class="text-danger">*</span></label>
-                                        <select name="client_id" id="client_id" class="form-select @error('client_id') is-invalid @enderror" required>
+                                        <select name="client_id" id="client_id" class="form-select select2 @error('client_id') is-invalid @enderror" required>
                                             <option value="">Select Client...</option>
                                             @foreach($clients as $client)
                                             <option value="{{ $client->id }}" {{ old('client_id', $allocation->client_id) == $client->id ? 'selected' : '' }}>
@@ -80,7 +80,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="chief_id" class="form-label">Chief <span class="text-danger">*</span></label>
-                                        <select name="chief_id" id="chief_id" class="form-select @error('chief_id') is-invalid @enderror" required>
+                                        <select name="chief_id" id="chief_id" class="form-select select2 @error('chief_id') is-invalid @enderror" required>
                                             <option value="">Select Chief...</option>
                                             @foreach($chiefs as $chief)
                                             <option value="{{ $chief->id }}" {{ old('chief_id', $allocation->chief_id) == $chief->id ? 'selected' : '' }}>
@@ -145,7 +145,7 @@
 
                                     <div class="mb-3">
                                         <label for="processed_by" class="form-label">Processed By</label>
-                                        <select name="processed_by" id="processed_by" class="form-select @error('processed_by') is-invalid @enderror">
+                                        <select name="processed_by" id="processed_by" class="form-select select2 @error('processed_by') is-invalid @enderror">
                                             <option value="">Select Staff...</option>
                                             @foreach($staff as $staffMember)
                                             <option value="{{ $staffMember->id }}" {{ old('processed_by', $allocation->processed_by) == $staffMember->id ? 'selected' : '' }}>
@@ -235,9 +235,34 @@
 </div>
 @endsection
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+        padding: 4px 12px;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+    }
+</style>
+@endpush
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for dropdowns with select2 class
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            placeholder: function() {
+                return $(this).data('placeholder') || 'Select an option...';
+            },
+            allowClear: true,
+            width: '100%'
+        });
+
         // Set maximum date to today for all date fields
         const today = new Date().toISOString().split('T')[0];
         const dateFields = ['allocation_date', 'payment_date', 'chief_approval_date', 'registrar_approval_date'];
@@ -287,6 +312,14 @@
                 e.preventDefault();
                 alert('Please fill in all required fields marked with *.');
                 return false;
+            }
+        });
+
+        // Ensure Select2 works properly with Bootstrap validation
+        $('.select2').on('change', function() {
+            if ($(this).hasClass('is-invalid')) {
+                $(this).removeClass('is-invalid');
+                $(this).next('.invalid-feedback').remove();
             }
         });
     });

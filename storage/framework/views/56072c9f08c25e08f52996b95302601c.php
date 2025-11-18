@@ -25,7 +25,7 @@
                                     
                                     <div class="mb-3">
                                         <label for="land_id" class="form-label">Land Plot <span class="text-danger">*</span></label>
-                                        <select name="land_id" id="land_id" class="form-select <?php $__errorArgs = ['land_id'];
+                                        <select name="land_id" id="land_id" class="form-select select2 <?php $__errorArgs = ['land_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -54,7 +54,7 @@ unset($__errorArgs, $__bag); ?>
 
                                     <div class="mb-3">
                                         <label for="client_id" class="form-label">Client <span class="text-danger">*</span></label>
-                                        <select name="client_id" id="client_id" class="form-select <?php $__errorArgs = ['client_id'];
+                                        <select name="client_id" id="client_id" class="form-select select2 <?php $__errorArgs = ['client_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -137,7 +137,7 @@ unset($__errorArgs, $__bag); ?>
                                     
                                     <div class="mb-3">
                                         <label for="chief_id" class="form-label">Chief <span class="text-danger">*</span></label>
-                                        <select name="chief_id" id="chief_id" class="form-select <?php $__errorArgs = ['chief_id'];
+                                        <select name="chief_id" id="chief_id" class="form-select select2 <?php $__errorArgs = ['chief_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -273,7 +273,7 @@ unset($__errorArgs, $__bag); ?>
 
                                     <div class="mb-3">
                                         <label for="processed_by" class="form-label">Processed By</label>
-                                        <select name="processed_by" id="processed_by" class="form-select <?php $__errorArgs = ['processed_by'];
+                                        <select name="processed_by" id="processed_by" class="form-select select2 <?php $__errorArgs = ['processed_by'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -434,9 +434,34 @@ unset($__errorArgs, $__bag); ?>
 </div>
 <?php $__env->stopSection(); ?>
 
+<?php $__env->startPush('styles'); ?>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+        padding: 4px 12px;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+    }
+</style>
+<?php $__env->stopPush(); ?>
+
 <?php $__env->startPush('scripts'); ?>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for dropdowns with select2 class
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            placeholder: function() {
+                return $(this).data('placeholder') || 'Select an option...';
+            },
+            allowClear: true,
+            width: '100%'
+        });
+
         // Set maximum date to today for all date fields
         const today = new Date().toISOString().split('T')[0];
         const dateFields = ['allocation_date', 'payment_date', 'chief_approval_date', 'registrar_approval_date'];
@@ -486,6 +511,14 @@ unset($__errorArgs, $__bag); ?>
                 e.preventDefault();
                 alert('Please fill in all required fields marked with *.');
                 return false;
+            }
+        });
+
+        // Ensure Select2 works properly with Bootstrap validation
+        $('.select2').on('change', function() {
+            if ($(this).hasClass('is-invalid')) {
+                $(this).removeClass('is-invalid');
+                $(this).next('.invalid-feedback').remove();
             }
         });
     });

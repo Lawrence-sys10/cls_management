@@ -111,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Export/Import
         Route::get('/export', [AllocationController::class, 'export'])->name('export');
         Route::post('/import', [AllocationController::class, 'import'])->name('import');
+        Route::get('/import-template', [AllocationController::class, 'downloadImportTemplate'])->name('import-template');
         
         // Bulk actions
         Route::post('/bulk-approve', [AllocationController::class, 'bulkApprove'])->name('bulk-approve');
@@ -141,6 +142,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Export/Import
         Route::get('/export', [ChiefController::class, 'export'])->name('export');
+        Route::post('/import', [ChiefController::class, 'import'])->name('import');
+        Route::get('/import-template', [ChiefController::class, 'downloadImportTemplate'])->name('import-template');
         
         // Bulk actions
         Route::post('/bulk-actions', [ChiefController::class, 'bulkActions'])->name('bulk-actions');
@@ -181,6 +184,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Main reports page
         Route::get('/', [ReportController::class, 'index'])->name('index');
         
+        // Reports Export Route - FIXED: Support both GET and POST methods
+        Route::match(['get', 'post'], '/export', [ReportController::class, 'export'])->name('export');
+        
         // View Reports (GET routes for HTML views)
         Route::get('/lands', [ReportController::class, 'landReport'])->name('lands');
         Route::get('/allocations', [ReportController::class, 'allocationReport'])->name('allocations');
@@ -188,14 +194,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chiefs', [ReportController::class, 'chiefReport'])->name('chiefs');
         Route::get('/system', [ReportController::class, 'systemReport'])->name('system');
         
-        // Generate/Download Reports (POST routes for exports)
+        // Generate/Download Reports (POST routes for exports with form data)
         Route::post('/lands/generate', [ReportController::class, 'generateLandReport'])->name('lands.generate');
         Route::post('/allocations/generate', [ReportController::class, 'generateAllocationReport'])->name('allocations.generate');
         Route::post('/clients/generate', [ReportController::class, 'generateClientReport'])->name('clients.generate');
         Route::post('/chiefs/generate', [ReportController::class, 'generateChiefReport'])->name('chiefs.generate');
         Route::post('/system/generate', [ReportController::class, 'generateSystemReport'])->name('system.generate');
         
-        // Quick Export Routes (GET routes for direct exports)
+        // Quick Export Routes (GET routes for direct exports without filters)
         Route::get('/lands/export', [ReportController::class, 'exportLandReport'])->name('lands.export');
         Route::get('/allocations/export', [ReportController::class, 'exportAllocationReport'])->name('allocations.export');
         Route::get('/clients/export', [ReportController::class, 'exportClientReport'])->name('clients.export');
@@ -276,6 +282,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'chief'])->name('dashboard');
         Route::get('/lands', [LandController::class, 'chiefLands'])->name('lands');
         Route::get('/allocations', [AllocationController::class, 'chiefAllocations'])->name('allocations');
+        
+        // Chief reports access
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/lands', [ReportController::class, 'landReport'])->name('lands');
+            Route::get('/allocations', [ReportController::class, 'allocationReport'])->name('allocations');
+            Route::get('/chiefs', [ReportController::class, 'chiefReport'])->name('chiefs');
+        });
     });
 });
 

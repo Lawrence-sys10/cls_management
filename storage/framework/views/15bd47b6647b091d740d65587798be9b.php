@@ -34,7 +34,7 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="chief_id" class="form-label">Chief</label>
-                                                <select name="chief_id" id="chief_id" class="form-select">
+                                                <select name="chief_id" id="chief_id" class="form-select select2">
                                                     <option value="">All Chiefs</option>
                                                     <?php $__currentLoopData = $chiefs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chief): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                         <option value="<?php echo e($chief->id); ?>" <?php echo e(request('chief_id') == $chief->id ? 'selected' : ''); ?>>
@@ -276,7 +276,18 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('styles'); ?>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 <style>
+    /* Select2 Styling */
+    .select2-container--bootstrap-5 .select2-selection {
+        min-height: 38px;
+        padding: 4px 12px;
+    }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        padding-left: 0;
+    }
+
     /* Compact table styling */
     .table-sm {
         font-size: 0.8rem;
@@ -343,8 +354,17 @@
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startPush('scripts'); ?>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Select2 for chief dropdown only
+        $('#chief_id').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Select Chief...',
+            allowClear: true,
+            width: '100%'
+        });
+
         // Initialize date inputs
         const today = new Date().toISOString().split('T')[0];
         if (document.getElementById('end_date')) {
