@@ -179,6 +179,13 @@
                                     <a href="<?php echo e(route('chiefs.edit', $chief)); ?>" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <form action="<?php echo e(route('chiefs.destroy', $chief)); ?>" method="POST" class="d-inline">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this chief?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                     <?php endif; ?>
                                 </div>
                             </td>

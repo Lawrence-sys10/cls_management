@@ -171,54 +171,69 @@
                         <div class="card-header">
                             <h5 class="card-title mb-0">Clients Details</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body p-0">
                             @if($clients->count() > 0)
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped" id="clientsTable">
-                                        <thead>
+                                    <table class="table table-sm table-bordered table-striped mb-0" id="clientsTable">
+                                        <thead class="bg-light">
                                             <tr>
-                                                <th>Client ID</th>
-                                                <th>Full Name</th>
-                                                <th>Phone</th>
-                                                <th>Email</th>
-                                                <th>ID Type</th>
-                                                <th>ID Number</th>
-                                                <th>Occupation</th>
-                                                <th>Status</th>
-                                                <th>Total Allocations</th>
-                                                <th>Registered Date</th>
+                                                <th width="70" class="small fw-bold px-2 py-1">ID</th>
+                                                <th width="150" class="small fw-bold px-2 py-1">Full Name</th>
+                                                <th width="110" class="small fw-bold px-2 py-1">Phone</th>
+                                                <th width="140" class="small fw-bold px-2 py-1">Email</th>
+                                                <th width="90" class="small fw-bold px-2 py-1">ID Type</th>
+                                                <th width="120" class="small fw-bold px-2 py-1">ID Number</th>
+                                                <th width="120" class="small fw-bold px-2 py-1">Occupation</th>
+                                                <th width="80" class="small fw-bold px-2 py-1">Status</th>
+                                                <th width="80" class="small fw-bold px-2 py-1">Allocations</th>
+                                                <th width="100" class="small fw-bold px-2 py-1">Registered</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach($clients as $client)
                                                 <tr>
-                                                    <td>#{{ $client->id }}</td>
-                                                    <td>
-                                                        <strong>{{ $client->full_name }}</strong>
+                                                    <td class="small px-2 py-1">#{{ $client->id }}</td>
+                                                    <td class="small px-2 py-1">
+                                                        <div class="fw-semibold text-truncate" title="{{ $client->full_name }}">
+                                                            {{ $client->full_name }}
+                                                        </div>
                                                         @if($client->date_of_birth)
-                                                            <br><small class="text-muted">Age: {{ \Carbon\Carbon::parse($client->date_of_birth)->age }} years</small>
+                                                            <small class="text-muted">Age: {{ \Carbon\Carbon::parse($client->date_of_birth)->age }}</small>
                                                         @endif
                                                     </td>
-                                                    <td>{{ $client->phone }}</td>
-                                                    <td>{{ $client->email ?? 'N/A' }}</td>
-                                                    <td>
+                                                    <td class="small px-2 py-1">{{ $client->phone }}</td>
+                                                    <td class="small px-2 py-1 text-truncate" title="{{ $client->email ?? 'N/A' }}">
+                                                        {{ $client->email ?? 'N/A' }}
+                                                    </td>
+                                                    <td class="small px-2 py-1">
                                                         <span class="badge bg-secondary">
-                                                            {{ ucfirst(str_replace('_', ' ', $client->id_type)) }}
+                                                            @php
+                                                                $idType = $client->id_type;
+                                                                if($idType == 'ghanacard') echo 'Ghana Card';
+                                                                elseif($idType == 'passport') echo 'Passport';
+                                                                elseif($idType == 'drivers_license') echo 'Driver License';
+                                                                elseif($idType == 'voters_id') echo 'Voter ID';
+                                                                else echo ucfirst($idType);
+                                                            @endphp
                                                         </span>
                                                     </td>
-                                                    <td>{{ $client->id_number }}</td>
-                                                    <td>{{ $client->occupation ?? 'N/A' }}</td>
-                                                    <td>
+                                                    <td class="small px-2 py-1 text-truncate" title="{{ $client->id_number }}">
+                                                        {{ $client->id_number }}
+                                                    </td>
+                                                    <td class="small px-2 py-1 text-truncate" title="{{ $client->occupation ?? 'N/A' }}">
+                                                        {{ $client->occupation ?? 'N/A' }}
+                                                    </td>
+                                                    <td class="small px-2 py-1 text-center">
                                                         <span class="badge {{ $client->is_active ? 'bg-success' : 'bg-danger' }}">
                                                             {{ $client->is_active ? 'Active' : 'Inactive' }}
                                                         </span>
                                                     </td>
-                                                    <td>
+                                                    <td class="small px-2 py-1 text-center">
                                                         <span class="badge bg-primary">
                                                             {{ $client->allocations_count ?? $client->allocations->count() }}
                                                         </span>
                                                     </td>
-                                                    <td>{{ $client->created_at->format('M d, Y') }}</td>
+                                                    <td class="small px-2 py-1">{{ $client->created_at->format('M d, Y') }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -240,6 +255,73 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    /* Compact table styling */
+    .table-sm {
+        font-size: 0.8rem;
+    }
+    
+    .table-sm th,
+    .table-sm td {
+        padding: 0.4rem 0.5rem;
+        vertical-align: middle;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.25em 0.4em;
+    }
+    
+    .text-truncate {
+        max-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Ensure table fits within container */
+    .table-responsive {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+    
+    /* Compact card body for table */
+    .card-body.p-0 {
+        padding: 0 !important;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .table-sm {
+            font-size: 0.75rem;
+        }
+        
+        .table-sm th,
+        .table-sm td {
+            padding: 0.3rem 0.4rem;
+        }
+        
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.2em 0.3em;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .table-responsive {
+            font-size: 0.7rem;
+        }
+        
+        .table-sm th,
+        .table-sm td {
+            padding: 0.25rem 0.3rem;
+        }
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -248,6 +330,12 @@
         if (document.getElementById('end_date')) {
             document.getElementById('end_date').max = today;
         }
+        
+        // Add tooltips for truncated text
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
 </script>
 @endpush

@@ -1,9 +1,9 @@
-@extends('layouts.app')
 
-@section('title', 'Lands Report')
-@section('subtitle', 'Comprehensive Lands Report')
 
-@section('content')
+<?php $__env->startSection('title', 'Lands Report'); ?>
+<?php $__env->startSection('subtitle', 'Comprehensive Lands Report'); ?>
+
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -20,38 +20,39 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Filters</h5>
-                                    <form method="GET" action="{{ route('reports.lands') }}">
+                                    <form method="GET" action="<?php echo e(route('reports.lands')); ?>">
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <label for="status" class="form-label">Status</label>
                                                 <select name="status" id="status" class="form-select">
                                                     <option value="">All Statuses</option>
-                                                    <option value="available" {{ request('status') == 'available' ? 'selected' : '' }}>Available</option>
-                                                    <option value="occupied" {{ request('status') == 'occupied' ? 'selected' : '' }}>Occupied</option>
-                                                    <option value="disputed" {{ request('status') == 'disputed' ? 'selected' : '' }}>Disputed</option>
-                                                    <option value="sold" {{ request('status') == 'sold' ? 'selected' : '' }}>Sold</option>
+                                                    <option value="available" <?php echo e(request('status') == 'available' ? 'selected' : ''); ?>>Available</option>
+                                                    <option value="occupied" <?php echo e(request('status') == 'occupied' ? 'selected' : ''); ?>>Occupied</option>
+                                                    <option value="disputed" <?php echo e(request('status') == 'disputed' ? 'selected' : ''); ?>>Disputed</option>
+                                                    <option value="sold" <?php echo e(request('status') == 'sold' ? 'selected' : ''); ?>>Sold</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="chief_id" class="form-label">Chief</label>
                                                 <select name="chief_id" id="chief_id" class="form-select">
                                                     <option value="">All Chiefs</option>
-                                                    @foreach($chiefs as $chief)
-                                                        <option value="{{ $chief->id }}" {{ request('chief_id') == $chief->id ? 'selected' : '' }}>
-                                                            {{ $chief->full_name }} - {{ $chief->community }}
+                                                    <?php $__currentLoopData = $chiefs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $chief): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($chief->id); ?>" <?php echo e(request('chief_id') == $chief->id ? 'selected' : ''); ?>>
+                                                            <?php echo e($chief->full_name); ?> - <?php echo e($chief->community); ?>
+
                                                         </option>
-                                                    @endforeach
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="start_date" class="form-label">Start Date</label>
                                                 <input type="date" name="start_date" id="start_date" 
-                                                       value="{{ request('start_date') }}" class="form-control">
+                                                       value="<?php echo e(request('start_date')); ?>" class="form-control">
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="end_date" class="form-label">End Date</label>
                                                 <input type="date" name="end_date" id="end_date" 
-                                                       value="{{ request('end_date') }}" class="form-control">
+                                                       value="<?php echo e(request('end_date')); ?>" class="form-control">
                                             </div>
                                         </div>
                                         <div class="row mt-3">
@@ -59,7 +60,7 @@
                                                 <button type="submit" class="btn btn-primary">
                                                     <i class="fas fa-filter me-2"></i>Apply Filters
                                                 </button>
-                                                <a href="{{ route('reports.lands') }}" class="btn btn-secondary">
+                                                <a href="<?php echo e(route('reports.lands')); ?>" class="btn btn-secondary">
                                                     <i class="fas fa-redo me-2"></i>Reset
                                                 </a>
                                                 
@@ -70,12 +71,12 @@
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         <li>
-                                                            <form action="{{ route('reports.lands.generate') }}" method="POST" class="d-inline">
-                                                                @csrf
-                                                                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
-                                                                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
-                                                                <input type="hidden" name="status" value="{{ request('status') }}">
-                                                                <input type="hidden" name="chief_id" value="{{ request('chief_id') }}">
+                                                            <form action="<?php echo e(route('reports.lands.generate')); ?>" method="POST" class="d-inline">
+                                                                <?php echo csrf_field(); ?>
+                                                                <input type="hidden" name="start_date" value="<?php echo e(request('start_date')); ?>">
+                                                                <input type="hidden" name="end_date" value="<?php echo e(request('end_date')); ?>">
+                                                                <input type="hidden" name="status" value="<?php echo e(request('status')); ?>">
+                                                                <input type="hidden" name="chief_id" value="<?php echo e(request('chief_id')); ?>">
                                                                 <input type="hidden" name="format" value="pdf">
                                                                 <button type="submit" class="dropdown-item">
                                                                     <i class="fas fa-file-pdf me-2"></i>Export as PDF
@@ -83,12 +84,12 @@
                                                             </form>
                                                         </li>
                                                         <li>
-                                                            <form action="{{ route('reports.lands.generate') }}" method="POST" class="d-inline">
-                                                                @csrf
-                                                                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
-                                                                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
-                                                                <input type="hidden" name="status" value="{{ request('status') }}">
-                                                                <input type="hidden" name="chief_id" value="{{ request('chief_id') }}">
+                                                            <form action="<?php echo e(route('reports.lands.generate')); ?>" method="POST" class="d-inline">
+                                                                <?php echo csrf_field(); ?>
+                                                                <input type="hidden" name="start_date" value="<?php echo e(request('start_date')); ?>">
+                                                                <input type="hidden" name="end_date" value="<?php echo e(request('end_date')); ?>">
+                                                                <input type="hidden" name="status" value="<?php echo e(request('status')); ?>">
+                                                                <input type="hidden" name="chief_id" value="<?php echo e(request('chief_id')); ?>">
                                                                 <input type="hidden" name="format" value="excel">
                                                                 <button type="submit" class="dropdown-item">
                                                                     <i class="fas fa-file-excel me-2"></i>Export as Excel
@@ -112,7 +113,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h4 class="mb-0">{{ $lands->count() }}</h4>
+                                            <h4 class="mb-0"><?php echo e($lands->count()); ?></h4>
                                             <p class="mb-0">Total Lands</p>
                                         </div>
                                         <div class="align-self-center">
@@ -127,7 +128,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h4 class="mb-0">{{ $lands->where('status', 'available')->count() }}</h4>
+                                            <h4 class="mb-0"><?php echo e($lands->where('status', 'available')->count()); ?></h4>
                                             <p class="mb-0">Available</p>
                                         </div>
                                         <div class="align-self-center">
@@ -142,7 +143,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h4 class="mb-0">{{ $lands->where('status', 'occupied')->count() }}</h4>
+                                            <h4 class="mb-0"><?php echo e($lands->where('status', 'occupied')->count()); ?></h4>
                                             <p class="mb-0">Occupied</p>
                                         </div>
                                         <div class="align-self-center">
@@ -157,7 +158,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <h4 class="mb-0">{{ $lands->where('status', 'disputed')->count() }}</h4>
+                                            <h4 class="mb-0"><?php echo e($lands->where('status', 'disputed')->count()); ?></h4>
                                             <p class="mb-0">Disputed</p>
                                         </div>
                                         <div class="align-self-center">
@@ -175,7 +176,7 @@
                             <h5 class="card-title mb-0">Lands Details</h5>
                         </div>
                         <div class="card-body p-0">
-                            @if($lands->count() > 0)
+                            <?php if($lands->count() > 0): ?>
                                 <div class="table-responsive">
                                     <table class="table table-sm table-bordered table-striped mb-0" id="landsTable">
                                         <thead class="bg-light">
@@ -191,72 +192,80 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($lands as $land)
+                                            <?php $__currentLoopData = $lands; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $land): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <tr>
-                                                    <td class="small px-2 py-1">#{{ $land->id }}</td>
+                                                    <td class="small px-2 py-1">#<?php echo e($land->id); ?></td>
                                                     <td class="small px-2 py-1">
-                                                        <div class="fw-semibold text-truncate" title="{{ $land->location }}">
-                                                            {{ $land->location }}
+                                                        <div class="fw-semibold text-truncate" title="<?php echo e($land->location); ?>">
+                                                            <?php echo e($land->location); ?>
+
                                                         </div>
-                                                        @if($land->landmarks)
-                                                            <small class="text-muted text-truncate d-block" title="{{ $land->landmarks }}">
-                                                                {{ $land->landmarks }}
+                                                        <?php if($land->landmarks): ?>
+                                                            <small class="text-muted text-truncate d-block" title="<?php echo e($land->landmarks); ?>">
+                                                                <?php echo e($land->landmarks); ?>
+
                                                             </small>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td class="small px-2 py-1 text-center">
-                                                        {{ number_format($land->size, 1) }}
+                                                        <?php echo e(number_format($land->size, 1)); ?>
+
                                                     </td>
                                                     <td class="small px-2 py-1 text-center">
                                                         <span class="badge 
-                                                            @if($land->status == 'available') bg-success
-                                                            @elseif($land->status == 'occupied') bg-warning
-                                                            @elseif($land->status == 'disputed') bg-danger
-                                                            @elseif($land->status == 'sold') bg-info
-                                                            @else bg-secondary @endif">
-                                                            {{ ucfirst($land->status) }}
+                                                            <?php if($land->status == 'available'): ?> bg-success
+                                                            <?php elseif($land->status == 'occupied'): ?> bg-warning
+                                                            <?php elseif($land->status == 'disputed'): ?> bg-danger
+                                                            <?php elseif($land->status == 'sold'): ?> bg-info
+                                                            <?php else: ?> bg-secondary <?php endif; ?>">
+                                                            <?php echo e(ucfirst($land->status)); ?>
+
                                                         </span>
                                                     </td>
                                                     <td class="small px-2 py-1">
-                                                        @if($land->client)
-                                                            <div class="text-truncate" title="{{ $land->client->full_name }}">
-                                                                {{ $land->client->full_name }}
+                                                        <?php if($land->client): ?>
+                                                            <div class="text-truncate" title="<?php echo e($land->client->full_name); ?>">
+                                                                <?php echo e($land->client->full_name); ?>
+
                                                             </div>
-                                                        @else
+                                                        <?php else: ?>
                                                             <span class="text-muted">No Client</span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td class="small px-2 py-1">
-                                                        @if($land->chief)
-                                                            <div class="text-truncate" title="{{ $land->chief->full_name }}">
-                                                                {{ $land->chief->full_name }}
+                                                        <?php if($land->chief): ?>
+                                                            <div class="text-truncate" title="<?php echo e($land->chief->full_name); ?>">
+                                                                <?php echo e($land->chief->full_name); ?>
+
                                                             </div>
-                                                        @else
+                                                        <?php else: ?>
                                                             <span class="text-muted">No Chief</span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td class="small px-2 py-1 text-center">
-                                                        @if($land->price)
-                                                            {{ number_format($land->price, 0) }}
-                                                        @else
+                                                        <?php if($land->price): ?>
+                                                            <?php echo e(number_format($land->price, 0)); ?>
+
+                                                        <?php else: ?>
                                                             <span class="text-muted">N/A</span>
-                                                        @endif
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td class="small px-2 py-1">
-                                                        {{ $land->created_at->format('M d, Y') }}
+                                                        <?php echo e($land->created_at->format('M d, Y')); ?>
+
                                                     </td>
                                                 </tr>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </tbody>
                                     </table>
                                 </div>
-                            @else
+                            <?php else: ?>
                                 <div class="text-center py-4">
                                     <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
                                     <h5>No lands found</h5>
                                     <p class="text-muted">No land records match your current filters.</p>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -264,9 +273,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <style>
     /* Compact table styling */
     .table-sm {
@@ -331,9 +340,9 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize date inputs
@@ -349,4 +358,5 @@
         });
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\pprhl\cls_management\resources\views/reports/lands.blade.php ENDPATH**/ ?>

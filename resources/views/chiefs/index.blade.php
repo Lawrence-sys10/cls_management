@@ -181,6 +181,13 @@
                                     <a href="{{ route('chiefs.edit', $chief) }}" class="btn btn-sm btn-outline-secondary" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    <form action="{{ route('chiefs.destroy', $chief) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this chief?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                     @endif
                                 </div>
                             </td>
