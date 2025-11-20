@@ -45,6 +45,16 @@
             <span>Chiefs</span>
         </a>
         
+        <!-- Staff Management - Only for Admin -->
+        @if(auth()->user()->hasRole('admin'))
+        <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            <div class="nav-icon">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <span>Users</span>
+        </a>
+        @endif
+        
         <a href="{{ route('reports.index') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
             <div class="nav-icon">
                 <i class="fas fa-chart-bar"></i>
@@ -71,14 +81,14 @@
                     <i class="fas fa-user-edit me-2"></i>
                     Edit Profile
                 </a>
-                <a href="#" class="dropup-item" onclick="alert('Change password functionality coming soon!')">
+                <a href="{{ route('profile.password.edit') }}" class="dropup-item">
                     <i class="fas fa-key me-2"></i>
                     Change Password
                 </a>
                 <div class="dropup-divider"></div>
-                <form method="POST" action="{{ route('logout') }}" class="w-100">
+                <form method="POST" action="{{ route('logout') }}" class="w-100" id="logout-form">
                     @csrf
-                    <button type="submit" class="dropup-item logout-btn">
+                    <button type="submit" class="dropup-item logout-btn w-100 text-start">
                         <i class="fas fa-sign-out-alt me-2"></i>
                         Logout
                     </button>
@@ -216,6 +226,9 @@
     .logout-btn {
         color: #ef4444;
         width: 100%;
+        border: none;
+        background: none;
+        padding: 0;
     }
 
     .logout-btn:hover {
@@ -223,7 +236,13 @@
         color: #dc2626;
     }
 
-    /* Ensure sidebar has proper z-index and layout - PREVIOUS COLORS */
+    /* Form styles */
+    #logout-form {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ensure sidebar has proper z-index and layout */
     .sidebar {
         z-index: 1000;
         position: fixed;
@@ -233,7 +252,7 @@
         width: var(--sidebar-width, 250px);
         display: flex;
         flex-direction: column;
-        background: var(--primary); /* Previous sidebar color */
+        background: var(--primary);
     }
 
     .sidebar-nav {
@@ -242,7 +261,7 @@
         padding: 0.5rem 0;
     }
 
-    /* Basic sidebar nav item styles - PREVIOUS COLORS */
+    /* Basic sidebar nav item styles */
     .nav-item {
         display: flex;
         align-items: center;
@@ -276,7 +295,7 @@
         opacity: 0.8;
     }
 
-    /* Logo Styles - PREVIOUS COLORS */
+    /* Logo Styles */
     .sidebar-header {
         padding: 1.5rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -296,7 +315,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--primary); /* Logo icon color matches sidebar */
+        color: var(--primary);
         font-size: 1.1rem;
     }
 
@@ -328,6 +347,22 @@
     body.dark-mode .logout-btn:hover {
         background: #7f1d1d;
         color: #fca5a5;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        
+        .user-name, .user-role {
+            font-size: 0.8rem;
+        }
     }
 </style>
 
@@ -374,6 +409,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Handle logout form submission
+    const logoutForm = document.getElementById('logout-form');
+    if (logoutForm) {
+        const logoutButton = logoutForm.querySelector('button[type="submit"]');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Show confirmation dialog
+                if (confirm('Are you sure you want to logout?')) {
+                    // Submit the form
+                    logoutForm.submit();
+                }
+            });
+        }
+    }
+
     // Simple sidebar functionality for nav items
     const navItems = document.querySelectorAll('.nav-item');
     
@@ -384,7 +436,21 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.nav-dropup').forEach(dropup => {
                 dropup.classList.remove('active');
             });
+            
+            // Close mobile sidebar if open
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && sidebar.classList.contains('mobile-open')) {
+                sidebar.classList.remove('mobile-open');
+            }
         });
     });
+
+    // Mobile menu toggle (if you have a mobile menu button)
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('mobile-open');
+        });
+    }
 });
 </script>

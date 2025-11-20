@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+        Route::get('/password', [ProfileController::class, 'editPassword'])->name('password.edit');
         Route::get('/settings', function () {
             return view('profile.settings');
         })->name('settings');
@@ -184,7 +185,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Main reports page
         Route::get('/', [ReportController::class, 'index'])->name('index');
         
-        // Reports Export Route - FIXED: Support both GET and POST methods
+        // Reports Export Route - Support both GET and POST methods
         Route::match(['get', 'post'], '/export', [ReportController::class, 'export'])->name('export');
         
         // View Reports (GET routes for HTML views)

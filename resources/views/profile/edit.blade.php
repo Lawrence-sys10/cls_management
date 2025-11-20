@@ -45,6 +45,9 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Update Profile') }}
                                 </button>
+                                <a href="{{ route('dashboard') }}" class="btn btn-secondary ms-2">
+                                    {{ __('Exit') }}
+                                </a>
                             </div>
                         </div>
                     </form>

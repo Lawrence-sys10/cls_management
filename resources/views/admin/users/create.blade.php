@@ -10,7 +10,7 @@
                 <div class="card-header">
                     <h4 class="card-title">Create New User</h4>
                     <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Users
+                        <i class="fas fa-arrow-left me-2"></i>Back to Staff
                     </a>
                 </div>
                 <div class="card-body">
@@ -110,17 +110,23 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Roles *</label>
+                            <label class="form-label">Role *</label>
                             <div class="row">
-                                @foreach($roles as $role)
+                                @php
+                                    $allowedRoles = ['admin', 'staff'];
+                                    $filteredRoles = $roles->whereIn('name', $allowedRoles);
+                                @endphp
+                                
+                                @foreach($filteredRoles as $role)
                                     <div class="col-md-3 mb-2">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" 
+                                            <input class="form-check-input role-checkbox" type="radio" 
                                                    name="roles[]" value="{{ $role->name }}" 
                                                    id="role_{{ $role->id }}"
-                                                   {{ in_array($role->name, old('roles', [])) ? 'checked' : '' }}>
+                                                   {{ (is_array(old('roles')) && in_array($role->name, old('roles'))) ? 'checked' : '' }}
+                                                   required>
                                             <label class="form-check-label" for="role_{{ $role->id }}">
-                                                {{ $role->name }}
+                                                {{ ucfirst($role->name) }}
                                             </label>
                                         </div>
                                     </div>
@@ -150,6 +156,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const userTypeSelect = document.getElementById('user_type');
         const staffFields = document.getElementById('staff-fields');
+        const roleCheckboxes = document.querySelectorAll('.role-checkbox');
         
         function toggleStaffFields() {
             if (userTypeSelect.value === 'staff') {
@@ -170,6 +177,39 @@
         
         // Toggle on change
         userTypeSelect.addEventListener('change', toggleStaffFields);
+        
+        // Auto-select role based on user type
+        userTypeSelect.addEventListener('change', function() {
+            const selectedType = this.value;
+            roleCheckboxes.forEach(checkbox => {
+                if (checkbox.value === selectedType) {
+                    checkbox.checked = true;
+                }
+            });
+        });
+        
+        // Auto-update user type based on role selection
+        roleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    userTypeSelect.value = this.value;
+                    toggleStaffFields();
+                }
+            });
+        });
+        
+        // Ensure only one role can be selected (radio behavior)
+        roleCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    roleCheckboxes.forEach(otherCheckbox => {
+                        if (otherCheckbox !== this) {
+                            otherCheckbox.checked = false;
+                        }
+                    });
+                }
+            });
+        });
     });
 </script>
 @endsection

@@ -298,6 +298,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Set password attribute with proper hashing
+     */
+    public function setPasswordAttribute($value): void
+    {
+        if ($value) {
+            $this->attributes['password'] = Hash::make($value);
+        }
+    }
+
+    /**
      * Boot method for model events.
      */
     protected static function boot()
@@ -316,12 +326,7 @@ class User extends Authenticatable
             $user->assignDefaultRole();
         });
 
-        // Hash password when setting it
-        static::saving(function ($user) {
-            if ($user->isDirty('password') && !empty($user->password)) {
-                $user->password = Hash::make($user->password);
-            }
-        });
+        // REMOVED the saving event that was causing the double hashing issue
 
         // Delete related records when user is deleted
         static::deleting(function ($user) {
