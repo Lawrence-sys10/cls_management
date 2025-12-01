@@ -10,57 +10,138 @@
     </div>
     
     <div class="sidebar-nav">
-        <a href="<?php echo e(route('dashboard')); ?>" class="nav-item <?php echo e(request()->routeIs('dashboard') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-tachometer-alt"></i>
-            </div>
-            <span>Dashboard</span>
-        </a>
+        <!-- Dashboard - Different route based on role -->
+        <?php if(auth()->user()->hasRole('chief')): ?>
+            <a href="<?php echo e(route('chief.dashboard')); ?>" class="nav-item <?php echo e(request()->routeIs('chief.dashboard') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+        <?php else: ?>
+            <a href="<?php echo e(route('dashboard')); ?>" class="nav-item <?php echo e(request()->routeIs('dashboard') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+        <?php endif; ?>
         
-        <a href="<?php echo e(route('lands.index')); ?>" class="nav-item <?php echo e(request()->routeIs('lands.*') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-map-marked-alt"></i>
-            </div>
-            <span>Lands</span>
-        </a>
+        <!-- Lands - Different route based on role -->
+        <?php if(auth()->user()->hasRole('chief')): ?>
+            <a href="<?php echo e(route('chief.lands.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chief.lands.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <span>My Lands</span>
+            </a>
+        <?php elseif(auth()->user()->hasRole('admin|staff')): ?>
+            <a href="<?php echo e(route('lands.index')); ?>" class="nav-item <?php echo e(request()->routeIs('lands.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <span>Lands</span>
+            </a>
+        <?php endif; ?>
         
-        <a href="<?php echo e(route('clients.index')); ?>" class="nav-item <?php echo e(request()->routeIs('clients.*') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <span>Clients</span>
-        </a>
+        <!-- Clients - Different route based on role -->
+        <?php if(auth()->user()->hasRole('chief')): ?>
+            <a href="<?php echo e(route('chief.clients.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chief.clients.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span>My Clients</span>
+            </a>
+        <?php elseif(auth()->user()->hasRole('admin|staff')): ?>
+            <a href="<?php echo e(route('clients.index')); ?>" class="nav-item <?php echo e(request()->routeIs('clients.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span>Clients</span>
+            </a>
+        <?php endif; ?>
         
-        <a href="<?php echo e(route('allocations.index')); ?>" class="nav-item <?php echo e(request()->routeIs('allocations.*') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <span>Allocations</span>
-        </a>
+        <!-- Allocations - Different route based on role -->
+        <?php if(auth()->user()->hasRole('chief')): ?>
+            <a href="<?php echo e(route('chief.allocations.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chief.allocations.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <span>My Allocations</span>
+            </a>
+        <?php elseif(auth()->user()->hasRole('admin|staff')): ?>
+            <a href="<?php echo e(route('allocations.index')); ?>" class="nav-item <?php echo e(request()->routeIs('allocations.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <span>Allocations</span>
+            </a>
+        <?php endif; ?>
         
-        <a href="<?php echo e(route('chiefs.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chiefs.*') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-crown"></i>
-            </div>
-            <span>Chiefs</span>
-        </a>
+        <!-- Disputes - Only for Chiefs -->
+        <?php if(auth()->user()->hasRole('chief')): ?>
+            <a href="<?php echo e(route('chief.disputes.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chief.disputes.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span>Disputes</span>
+            </a>
+        <?php endif; ?>
+        
+        <!-- Chiefs Management - Only for Admin/Staff (not for chiefs themselves) -->
+        <?php if(auth()->user()->hasRole('admin|staff')): ?>
+            <a href="<?php echo e(route('chiefs.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chiefs.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <span>Chiefs</span>
+            </a>
+        <?php endif; ?>
         
         <!-- Staff Management - Only for Admin -->
         <?php if(auth()->user()->hasRole('admin')): ?>
-        <a href="<?php echo e(route('admin.users.index')); ?>" class="nav-item <?php echo e(request()->routeIs('admin.users.*') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-users-cog"></i>
-            </div>
-            <span>Users</span>
-        </a>
+            <a href="<?php echo e(route('admin.users.index')); ?>" class="nav-item <?php echo e(request()->routeIs('admin.users.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <span>Users</span>
+            </a>
+            
+            <!-- Admin Settings -->
+            <a href="<?php echo e(route('admin.settings.index')); ?>" class="nav-item <?php echo e(request()->routeIs('admin.settings.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <span>Settings</span>
+            </a>
         <?php endif; ?>
         
-        <a href="<?php echo e(route('reports.index')); ?>" class="nav-item <?php echo e(request()->routeIs('reports.*') ? 'active' : ''); ?>">
-            <div class="nav-icon">
-                <i class="fas fa-chart-bar"></i>
-            </div>
-            <span>Reports</span>
-        </a>
+        <!-- Reports - Different routes based on role -->
+        <?php if(auth()->user()->hasRole('chief')): ?>
+            <a href="<?php echo e(route('chief.reports.index')); ?>" class="nav-item <?php echo e(request()->routeIs('chief.reports.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span>My Reports</span>
+            </a>
+        <?php elseif(auth()->user()->hasRole('admin|staff')): ?>
+            <a href="<?php echo e(route('reports.index')); ?>" class="nav-item <?php echo e(request()->routeIs('reports.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span>Reports</span>
+            </a>
+        <?php endif; ?>
+        
+        <!-- Documents - Only for Admin/Staff -->
+        <?php if(auth()->user()->hasRole('admin|staff')): ?>
+            <a href="<?php echo e(route('documents.index')); ?>" class="nav-item <?php echo e(request()->routeIs('documents.*') ? 'active' : ''); ?>">
+                <div class="nav-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <span>Documents</span>
+            </a>
+        <?php endif; ?>
     </div>
 
     <!-- User Profile with Dropup -->
@@ -72,7 +153,17 @@
                 </div>
                 <div class="user-info">
                     <div class="user-name"><?php echo e(Auth::user()->name ?? 'User'); ?></div>
-                    <div class="user-role"><?php echo e(Auth::user()->role ?? 'User'); ?></div>
+                    <div class="user-role">
+                        <?php if(auth()->user()->hasRole('chief')): ?>
+                            Chief
+                        <?php elseif(auth()->user()->hasRole('admin')): ?>
+                            Administrator
+                        <?php elseif(auth()->user()->hasRole('staff')): ?>
+                            Staff
+                        <?php else: ?>
+                            User
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <i class="fas fa-chevron-up dropdown-arrow"></i>
             </div>

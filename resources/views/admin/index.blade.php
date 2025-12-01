@@ -1,15 +1,15 @@
-@extends(''layouts.app'')
+@extends('layouts.app')
 
-@section(''title'', ''User Management'')
-@section(''header'', ''User Management'')
+@section('title', 'User Management')
+@section('header', 'User Management')
 
-@section(''actions'')
-<a href="{{ route(''admin.users.create'') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+@section('actions')
+<a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
     <i class="fas fa-plus mr-2"></i>Add User
 </a>
 @endsection
 
-@section(''content'')
+@section('content')
 <div class="bg-white shadow rounded-lg">
     <div class="px-4 py-5 sm:p-6">
         <!-- Users Table -->
@@ -42,7 +42,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $user->phone ?? ''N/A'' }}</div>
+                            <div class="text-sm text-gray-900">{{ $user->phone ?? 'N/A' }}</div>
                             <div class="text-sm text-gray-500">{{ $user->user_type }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -55,22 +55,22 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->is_active ? ''bg-green-100 text-green-800'' : ''bg-red-100 text-red-800'' }}">
-                                {{ $user->is_active ? ''Active'' : ''Inactive'' }}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $user->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ $user->is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : ''Never'' }}
+                            {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route(''admin.users.edit'', $user) }}" class="text-green-600 hover:text-green-900 mr-3">
+                            <a href="{{ route('admin.users.edit', $user) }}" class="text-green-600 hover:text-green-900 mr-3">
                                 <i class="fas fa-edit"></i>
                             </a>
                             @if($user->id !== auth()->id())
-                            <form action="{{ route(''admin.users.destroy'', $user) }}" method="POST" class="inline">
+                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
                                 @csrf
-                                @method(''DELETE'')
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm(''Are you sure you want to delete this user?'')">
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this user?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -90,10 +90,10 @@
 </div>
 @endsection
 
-@push(''scripts'')
+@push('scripts')
 <script>
     $(document).ready(function() {
-        $(''#usersTable'').DataTable({
+        $('#usersTable').DataTable({
             paging: false,
             info: false,
             searching: false,

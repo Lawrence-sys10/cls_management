@@ -58,6 +58,8 @@
                                             id="user_type" name="user_type">
                                         <option value="staff" {{ old('user_type') == 'staff' ? 'selected' : '' }}>Staff</option>
                                         <option value="admin" {{ old('user_type') == 'admin' ? 'selected' : '' }}>Administrator</option>
+                                        <option value="chief" {{ old('user_type') == 'chief' ? 'selected' : '' }}>Chief</option>
+                                        <option value="cls_admin" {{ old('user_type') == 'cls_admin' ? 'selected' : '' }}>CLS Admin</option>
                                     </select>
                                     @error('user_type')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -113,7 +115,7 @@
                             <label class="form-label">Role *</label>
                             <div class="row">
                                 @php
-                                    $allowedRoles = ['admin', 'staff'];
+                                    $allowedRoles = ['admin', 'staff', 'chief', 'cls_admin'];
                                     $filteredRoles = $roles->whereIn('name', $allowedRoles);
                                 @endphp
                                 
@@ -126,7 +128,7 @@
                                                    {{ (is_array(old('roles')) && in_array($role->name, old('roles'))) ? 'checked' : '' }}
                                                    required>
                                             <label class="form-check-label" for="role_{{ $role->id }}">
-                                                {{ ucfirst($role->name) }}
+                                                {{ ucfirst(str_replace('_', ' ', $role->name)) }}
                                             </label>
                                         </div>
                                     </div>

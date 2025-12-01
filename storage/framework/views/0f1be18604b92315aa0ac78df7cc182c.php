@@ -107,6 +107,8 @@ unset($__errorArgs, $__bag); ?>"
                                             id="user_type" name="user_type">
                                         <option value="staff" <?php echo e(old('user_type') == 'staff' ? 'selected' : ''); ?>>Staff</option>
                                         <option value="admin" <?php echo e(old('user_type') == 'admin' ? 'selected' : ''); ?>>Administrator</option>
+                                        <option value="chief" <?php echo e(old('user_type') == 'chief' ? 'selected' : ''); ?>>Chief</option>
+                                        <option value="cls_admin" <?php echo e(old('user_type') == 'cls_admin' ? 'selected' : ''); ?>>CLS Admin</option>
                                     </select>
                                     <?php $__errorArgs = ['user_type'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -211,7 +213,7 @@ unset($__errorArgs, $__bag); ?>
                             <label class="form-label">Role *</label>
                             <div class="row">
                                 <?php
-                                    $allowedRoles = ['admin', 'staff'];
+                                    $allowedRoles = ['admin', 'staff', 'chief', 'cls_admin'];
                                     $filteredRoles = $roles->whereIn('name', $allowedRoles);
                                 ?>
                                 
@@ -225,7 +227,7 @@ unset($__errorArgs, $__bag); ?>
 
                                                    required>
                                             <label class="form-check-label" for="role_<?php echo e($role->id); ?>">
-                                                <?php echo e(ucfirst($role->name)); ?>
+                                                <?php echo e(ucfirst(str_replace('_', ' ', $role->name))); ?>
 
                                             </label>
                                         </div>

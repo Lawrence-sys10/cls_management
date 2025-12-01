@@ -10,57 +10,138 @@
     </div>
     
     <div class="sidebar-nav">
-        <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-tachometer-alt"></i>
-            </div>
-            <span>Dashboard</span>
-        </a>
+        <!-- Dashboard - Different route based on role -->
+        @if(auth()->user()->hasRole('chief'))
+            <a href="{{ route('chief.dashboard') }}" class="nav-item {{ request()->routeIs('chief.dashboard') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+        @else
+            <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <span>Dashboard</span>
+            </a>
+        @endif
         
-        <a href="{{ route('lands.index') }}" class="nav-item {{ request()->routeIs('lands.*') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-map-marked-alt"></i>
-            </div>
-            <span>Lands</span>
-        </a>
+        <!-- Lands - Different route based on role -->
+        @if(auth()->user()->hasRole('chief'))
+            <a href="{{ route('chief.lands.index') }}" class="nav-item {{ request()->routeIs('chief.lands.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <span>My Lands</span>
+            </a>
+        @elseif(auth()->user()->hasRole('admin|staff'))
+            <a href="{{ route('lands.index') }}" class="nav-item {{ request()->routeIs('lands.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <span>Lands</span>
+            </a>
+        @endif
         
-        <a href="{{ route('clients.index') }}" class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <span>Clients</span>
-        </a>
+        <!-- Clients - Different route based on role -->
+        @if(auth()->user()->hasRole('chief'))
+            <a href="{{ route('chief.clients.index') }}" class="nav-item {{ request()->routeIs('chief.clients.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span>My Clients</span>
+            </a>
+        @elseif(auth()->user()->hasRole('admin|staff'))
+            <a href="{{ route('clients.index') }}" class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span>Clients</span>
+            </a>
+        @endif
         
-        <a href="{{ route('allocations.index') }}" class="nav-item {{ request()->routeIs('allocations.*') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-handshake"></i>
-            </div>
-            <span>Allocations</span>
-        </a>
+        <!-- Allocations - Different route based on role -->
+        @if(auth()->user()->hasRole('chief'))
+            <a href="{{ route('chief.allocations.index') }}" class="nav-item {{ request()->routeIs('chief.allocations.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <span>My Allocations</span>
+            </a>
+        @elseif(auth()->user()->hasRole('admin|staff'))
+            <a href="{{ route('allocations.index') }}" class="nav-item {{ request()->routeIs('allocations.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <span>Allocations</span>
+            </a>
+        @endif
         
-        <a href="{{ route('chiefs.index') }}" class="nav-item {{ request()->routeIs('chiefs.*') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-crown"></i>
-            </div>
-            <span>Chiefs</span>
-        </a>
+        <!-- Disputes - Only for Chiefs -->
+        @if(auth()->user()->hasRole('chief'))
+            <a href="{{ route('chief.disputes.index') }}" class="nav-item {{ request()->routeIs('chief.disputes.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span>Disputes</span>
+            </a>
+        @endif
+        
+        <!-- Chiefs Management - Only for Admin/Staff (not for chiefs themselves) -->
+        @if(auth()->user()->hasRole('admin|staff'))
+            <a href="{{ route('chiefs.index') }}" class="nav-item {{ request()->routeIs('chiefs.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <span>Chiefs</span>
+            </a>
+        @endif
         
         <!-- Staff Management - Only for Admin -->
         @if(auth()->user()->hasRole('admin'))
-        <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-users-cog"></i>
-            </div>
-            <span>Users</span>
-        </a>
+            <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-users-cog"></i>
+                </div>
+                <span>Users</span>
+            </a>
+            
+            <!-- Admin Settings -->
+            <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <span>Settings</span>
+            </a>
         @endif
         
-        <a href="{{ route('reports.index') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-            <div class="nav-icon">
-                <i class="fas fa-chart-bar"></i>
-            </div>
-            <span>Reports</span>
-        </a>
+        <!-- Reports - Different routes based on role -->
+        @if(auth()->user()->hasRole('chief'))
+            <a href="{{ route('chief.reports.index') }}" class="nav-item {{ request()->routeIs('chief.reports.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span>My Reports</span>
+            </a>
+        @elseif(auth()->user()->hasRole('admin|staff'))
+            <a href="{{ route('reports.index') }}" class="nav-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span>Reports</span>
+            </a>
+        @endif
+        
+        <!-- Documents - Only for Admin/Staff -->
+        @if(auth()->user()->hasRole('admin|staff'))
+            <a href="{{ route('documents.index') }}" class="nav-item {{ request()->routeIs('documents.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <span>Documents</span>
+            </a>
+        @endif
     </div>
 
     <!-- User Profile with Dropup -->
@@ -72,7 +153,17 @@
                 </div>
                 <div class="user-info">
                     <div class="user-name">{{ Auth::user()->name ?? 'User' }}</div>
-                    <div class="user-role">{{ Auth::user()->role ?? 'User' }}</div>
+                    <div class="user-role">
+                        @if(auth()->user()->hasRole('chief'))
+                            Chief
+                        @elseif(auth()->user()->hasRole('admin'))
+                            Administrator
+                        @elseif(auth()->user()->hasRole('staff'))
+                            Staff
+                        @else
+                            User
+                        @endif
+                    </div>
                 </div>
                 <i class="fas fa-chevron-up dropdown-arrow"></i>
             </div>

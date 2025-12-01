@@ -86,30 +86,55 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'required|string|max:15',
             'roles' => 'required|array',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'password' => 'nullable|min:8|confirmed',
         ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'is_active' => $request->is_active ?? true,
-        ]);
+        try {
+            // Prepare update data
+            $updateData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'is_active' => $request->boolean('is_active'),
+            ];
 
-        $user->syncRoles($request->roles);
+            // Update password if provided
+            if (!empty($validated['password'])) {
+                $updateData['password'] = Hash::make($validated['password']);
+            }
 
-        activity()
-            ->causedBy(auth()->user())
-            ->performedOn($user)
-            ->log('updated user: ' . $user->name);
+            // Update user
+            $user->update($updateData);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully!');
+            // Sync roles
+            $user->syncRoles($validated['roles']);
+
+            // Log activity
+            $activityMessage = 'updated user: ' . $user->name;
+            if (!empty($validated['password'])) {
+                $activityMessage .= ' and reset password';
+            }
+
+            activity()
+                ->causedBy(auth()->user())
+                ->performedOn($user)
+                ->log($activityMessage);
+
+            return redirect()->route('admin.users.show', $user)
+                ->with('success', 'User updated successfully!' . 
+                    (!empty($validated['password']) ? ' Password has been reset.' : ''));
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error updating user: ' . $e->getMessage());
+        }
     }
 
     public function destroy(User $user): RedirectResponse
@@ -278,7 +303,7 @@ class UserController extends Controller
     }
 
     /**
-     * Reset user password
+     * Reset user password (standalone method)
      */
     public function resetPassword(Request $request, User $user): RedirectResponse
     {
@@ -295,8 +320,44 @@ class UserController extends Controller
             ->performedOn($user)
             ->log('reset password for user: ' . $user->name);
 
-        return redirect()->route('admin.users.index')
+        return redirect()->route('admin.users.show', $user)
             ->with('success', 'Password reset successfully!');
+    }
+
+    /**
+     * Quick password reset with generated password
+     */
+    public function quickResetPassword(User $user): RedirectResponse
+    {
+        // Generate a random password
+        $randomPassword = $this->generateRandomPassword();
+        
+        $user->update([
+            'password' => Hash::make($randomPassword),
+        ]);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->log('quick reset password for user: ' . $user->name);
+
+        // Return to show page with the generated password
+        return redirect()->route('admin.users.show', $user)
+            ->with('success', 'Password reset successfully!')
+            ->with('generated_password', $randomPassword);
+    }
+
+    /**
+     * Generate a random password
+     */
+    private function generateRandomPassword($length = 12): string
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+        $password = '';
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $password;
     }
 
     /**

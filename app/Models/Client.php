@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
 class Client extends Model
@@ -12,6 +13,7 @@ class Client extends Model
     use HasFactory;
 
     protected $fillable = [
+        'chief_id',
         'full_name',
         'phone',
         'email',
@@ -27,6 +29,14 @@ class Client extends Model
     protected $casts = [
         'date_of_birth' => 'date',
     ];
+
+    /**
+     * Get the chief that owns the client.
+     */
+    public function chief(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'chief_id');
+    }
 
     public function allocations(): HasMany
     {
@@ -75,5 +85,11 @@ class Client extends Model
                     ->orWhere('phone', 'like', "%{$search}%")
                     ->orWhere('id_number', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
+    }
+
+    // Scope for clients belonging to a specific chief
+    public function scopeForChief($query, $chiefId)
+    {
+        return $query->where('chief_id', $chiefId);
     }
 }
